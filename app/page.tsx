@@ -17,7 +17,7 @@ import { fee, fxrp, headroom, ratio } from "@/lib/utils/format";
 import type { OracleView, RankingView } from "@/lib/utils/view";
 
 const PRESETS = [100, 500, 1000, 5000, 10000];
-const SHOCKS = [0, -10, -25, -40, -60];
+const SHOCKS = [0, -1000, -2500, -4000, -6000];  // BIPS: 0%, -10%, -25%, -40%, -60%
 
 export default function Home() {
   const [amount, setAmount] = useState("500");
@@ -104,7 +104,9 @@ export default function Home() {
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center border border-[var(--color-line-bright)] bg-[var(--color-surface)]">
                 <input
+                  id="mint-amount"
                   inputMode="numeric"
+                  aria-label="Mint amount in FXRP"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value.replace(/[^0-9]/g, ""))}
                   className="num w-40 bg-transparent px-4 py-3 text-lg outline-none"
@@ -145,6 +147,7 @@ export default function Home() {
                   min={10}
                   max={10000}
                   step={10}
+                  aria-label="Mint size in FXRP"
                   value={Math.min(10000, Math.max(10, Number(amount) || 0))}
                   onChange={(e) => {
                     setAmount(e.target.value);
@@ -215,6 +218,10 @@ export default function Home() {
                     </div>
                     <div className="num mt-2 text-2xl text-[var(--color-accent)]">
                       {recommended.agentVault}
+                    </div>
+                    <div className="mt-1 text-[11px] text-[var(--color-faint)]">
+                      Live recommendation at block {view.blockNumber}. A stored receipt
+                      may name a different agent — it is pinned to its own block.
                     </div>
                     <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
                       <Stat label="Post-mint CR" value={ratio(recommended.bindingLeg.projectedRatioBIPS)} />

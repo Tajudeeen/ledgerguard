@@ -215,6 +215,11 @@ function VerificationBanner({ verification }: { verification: Verification }) {
           submitted by {shortAddress(verification.submitter)} · recommends{" "}
           {shortAddress(verification.recommendedAgent)}
         </div>
+        <div className="text-[var(--color-faint)]">
+          Recommendation is pinned to block {verification.snapshotBlock}. The live
+          homepage reflects current Coston2 state and may name a different agent as
+          conditions change.
+        </div>
       </div>
     </div>
   );

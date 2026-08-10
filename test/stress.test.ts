@@ -1,6 +1,20 @@
 import { describe, expect, it } from "vitest";
 
 import { applyShock, formatShock, stressSnapshot } from "../lib/scoring/stress";
+
+describe("formatShock labels (regression: BIPS in, percent out)", () => {
+  it("renders whole-percent labels from BIPS inputs", () => {
+    expect(formatShock(0)).toBe("0%");
+    expect(formatShock(-1000)).toBe("-10%");
+    expect(formatShock(-2500)).toBe("-25%");
+    expect(formatShock(-4000)).toBe("-40%");
+    expect(formatShock(-6000)).toBe("-60%");
+  });
+  it("applies a real 40% drop at shock=-4000", () => {
+    // ratio 20000 (2.0x) * (1 + (-4000)/10000) = 20000 * 0.6 = 12000 (1.2x)
+    expect(applyShock(20000n, -4000)).toBe(12000n);
+  });
+});
 import type { AgentSnapshot } from "../lib/types/agent";
 
 describe("applyShock", () => {
