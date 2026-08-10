@@ -1,0 +1,223 @@
+{
+  "network": "coston2",
+  "chainId": 114,
+  "address": "0x2b38cc9b84bd3a568ccc7817b10dc98c8abdab36",
+  "deploymentTx": "0xc820f07be337de9ddaf2be7ec86603b58a9461151be72b49a3dfc98c85c9af11",
+  "blockNumber": 33867765,
+  "deployer": "0x541291139b59570D1CD5D0E64df217b3F6efd7c8",
+  "solcVersion": "0.8.28+commit.7893614a.Emscripten.clang",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "EmptySnapshotHash",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NoAgents",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "SnapshotBlockInFuture",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "UnknownAttestation",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ZeroMintAmount",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "snapshotHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "submitter",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "snapshotBlock",
+          "type": "uint64"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "attestedAt",
+          "type": "uint64"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint32",
+          "name": "agentCount",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint96",
+          "name": "mintAmountUBA",
+          "type": "uint96"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "recommendedAgent",
+          "type": "address"
+        }
+      ],
+      "name": "RankingAttested",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "snapshotHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint64",
+          "name": "snapshotBlock",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint32",
+          "name": "agentCount",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint96",
+          "name": "mintAmountUBA",
+          "type": "uint96"
+        },
+        {
+          "internalType": "address",
+          "name": "recommendedAgent",
+          "type": "address"
+        }
+      ],
+      "name": "attest",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "count",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "snapshotHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "firstAttestationOf",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "found",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "get",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "snapshotHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint64",
+              "name": "snapshotBlock",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint64",
+              "name": "attestedAt",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint32",
+              "name": "agentCount",
+              "type": "uint32"
+            },
+            {
+              "internalType": "uint96",
+              "name": "mintAmountUBA",
+              "type": "uint96"
+            },
+            {
+              "internalType": "address",
+              "name": "recommendedAgent",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "submitter",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct RankingAttestation.Attestation",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ]
+}

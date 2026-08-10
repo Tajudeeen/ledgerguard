@@ -1,0 +1,40 @@
+{
+  "name": "ledgerguard",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run test/scoring.test.ts test/trail.test.ts test/stress.test.ts test/liquidation.test.ts",
+    "test:live": "vitest run test/coston2-reader.integration.test.ts",
+    "compile": "node script/compile.mjs",
+    "deploy": "node script/deploy.mjs",
+    "attest": "npx tsx script/attest.ts",
+    "trail:backfill": "npx tsx script/trail-worker.ts backfill",
+    "trail:run": "npx tsx script/trail-worker.ts run"
+  },
+  "dependencies": {
+    "@flarenetwork/flare-wagmi-periphery-package": "3.6.0",
+    "@tanstack/query-core": "^5.62.0",
+    "@tanstack/react-query": "^5.62.0",
+    "next": "16.1.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "viem": "2.55.11"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "24.10.1",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
+    "postcss": "^8.5.26",
+    "solc": "^0.8.28",
+    "tailwindcss": "^4.3.3",
+    "typescript": "5.9.3",
+    "vitest": "4.0.16"
+  }
+}

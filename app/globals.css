@@ -1,0 +1,146 @@
+@import "tailwindcss";
+
+/*
+ * LedgerGuard visual system: a risk terminal on Flare.
+ * Near-black surfaces; the accent is Flare's flame gradient (orange -> magenta),
+ * applied as a gradient where emphasis is needed and as a solid where a single
+ * hue reads cleaner. Monospace for every number that comes off-chain so raw
+ * data always reads as raw data.
+ */
+@theme {
+  --color-ink: #08090b;
+  --color-surface: #0e1013;
+  --color-surface-2: #14171c;
+  --color-line: #23272e;
+  --color-line-bright: #333944;
+
+  --color-text: #e6e8ec;
+  --color-muted: #8b929e;
+  --color-faint: #5b626d;
+
+  /* Flare flame palette */
+  --color-flare-orange: #ff6b00;
+  --color-flare-magenta: #e11d8f;
+  --color-accent: #ff6b00;
+  --color-accent-2: #e11d8f;
+  --color-accent-dim: #7a3a12;
+
+  --color-good: #3fb950;
+  --color-warn: #ffb020;
+  --color-bad: #f85149;
+
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+:root {
+  --flare-gradient: linear-gradient(100deg, #ff6b00 0%, #ff3d6e 48%, #e11d8f 100%);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  background: var(--color-ink);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Numbers, addresses, hashes: always monospace, always tabular. */
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.hairline {
+  border-color: var(--color-line);
+}
+
+::selection {
+  background: var(--color-flare-orange);
+  color: #000;
+}
+
+/* Flare flame gradient text + surface helpers */
+.flare-text {
+  background: var(--flare-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.flare-bar {
+  height: 2px;
+  background: var(--flare-gradient);
+}
+
+.flare-glow {
+  box-shadow: 0 0 0 1px rgba(255, 107, 0, 0.18), 0 8px 40px -12px rgba(225, 29, 143, 0.35);
+}
+
+/* Splash: full-screen flame wipe, then fade out */
+@keyframes flare-wipe {
+  0% {
+    transform: scaleX(0);
+    transform-origin: left;
+    opacity: 1;
+  }
+  55% {
+    transform: scaleX(1);
+    transform-origin: left;
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(1);
+    transform-origin: right;
+    opacity: 0;
+  }
+}
+
+@keyframes splash-fade {
+  0% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes ember-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.splash-wipe {
+  animation: flare-wipe 1.4s cubic-bezier(0.7, 0, 0.2, 1) forwards;
+}
+
+.splash-fade {
+  animation: splash-fade 1.7s ease-in forwards;
+}
+
+.ember {
+  animation: ember-pulse 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .splash-wipe,
+  .splash-fade,
+  .ember {
+    animation: none;
+  }
+}
