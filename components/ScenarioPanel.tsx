@@ -39,7 +39,7 @@ export function ScenarioPanel({
           </span>
         ) : (
           <span className="text-[11px] text-[var(--color-faint)]">
-            FTSO not served on testnet — showing % moves from on-chain ratios
+            oracle-independent — derived from on-chain ratios
           </span>
         )}
       </div>

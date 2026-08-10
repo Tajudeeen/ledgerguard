@@ -10,6 +10,7 @@ import { Reveal } from "@/components/Reveal";
 import { RiskScore } from "@/components/RiskScore";
 import { ScenarioPanel } from "@/components/ScenarioPanel";
 import { BreachCascade } from "@/components/BreachCascade";
+import { MintAction } from "@/components/MintAction";
 import { ATTESTATION_ADDRESS } from "@/lib/attestation/abi";
 import { COSTON2_EXPLORER } from "@/lib/flare/coston2";
 import { formatShock } from "@/lib/scoring/stress";
@@ -88,12 +89,13 @@ export default function Home() {
             Flare · Coston2 · FAssets
           </div>
           <h1 className="mt-3 max-w-2xl text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
-            Pick an FXRP minting agent by risk — not by fee alone.
+            Pick an FXRP minting agent you can actually trust — and prove it later.
           </h1>
           <p className="mt-3 max-w-xl text-sm text-[var(--color-muted)]">
-            LedgerGuard reads every live agent, projects what your mint does to each
-            one&apos;s collateral, ranks them by transparent math, and anchors the
-            result on-chain so anyone can verify it later.
+            Every agent on Coston2 charges the same 0.25% fee, so fee is a useless
+            signal. LedgerGuard ranks by collateral risk instead, tracks each agent&apos;s
+            behavior in a verifiable on-chain trail, and anchors every ranking so anyone
+            can replay and confirm it. Then it hands you the exact mint parameters.
           </p>
 
           <form
@@ -239,6 +241,11 @@ export default function Home() {
                       />
                       <Stat label="Capacity" value={fxrp(recommended.availableCapacityUBA, view.assetUnitUBA)} />
                     </div>
+                    <MintAction
+                      recommendedVault={recommended.agentVault}
+                      amountFxrp={Number(amount) || 0}
+                      assetManager={view.assetManager}
+                    />
                   </div>
                   <div className="border border-[var(--color-line)] bg-[var(--color-surface)] p-6">
                     <div className="text-[11px] uppercase tracking-wider text-[var(--color-faint)]">

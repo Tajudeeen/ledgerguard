@@ -71,7 +71,7 @@ export function BreachCascade({
           </span>
         ) : (
           <span className="text-[11px] text-[var(--color-faint)]">
-            FTSO not served on testnet — showing % drawdown from on-chain ratios
+            oracle-independent — % drawdown from on-chain ratios
           </span>
         )}
       </div>
