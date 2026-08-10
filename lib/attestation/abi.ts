@@ -67,6 +67,11 @@ export const ATTESTATION_ABI = [
   },
 ] as const;
 
-/** Deployed RankingAttestation address on Coston2, or null when not deployed. */
+// Deployed RankingAttestation on Coston2 (verified live: 17 attestations).
+// Hardcoded as a safe default so the on-chain anchor works even if the
+// build environment did not supply NEXT_PUBLIC_ATTESTATION_ADDRESS (Next.js
+// inlines NEXT_PUBLIC_* at build time, so a missing build-time var bakes in
+// null and breaks anchoring). The env var still overrides this when present.
 export const ATTESTATION_ADDRESS =
-  process.env.NEXT_PUBLIC_ATTESTATION_ADDRESS ?? null;
+  process.env.NEXT_PUBLIC_ATTESTATION_ADDRESS ??
+  "0x2b38cc9b84bd3a568ccc7817b10dc98c8abdab36";
