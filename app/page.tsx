@@ -9,6 +9,7 @@ import { ConcentrationPanel } from "@/components/ConcentrationPanel";
 import { Reveal } from "@/components/Reveal";
 import { RiskScore } from "@/components/RiskScore";
 import { ScenarioPanel } from "@/components/ScenarioPanel";
+import { BreachCascade } from "@/components/BreachCascade";
 import { ATTESTATION_ADDRESS } from "@/lib/attestation/abi";
 import { COSTON2_EXPLORER } from "@/lib/flare/coston2";
 import { formatShock } from "@/lib/scoring/stress";
@@ -271,6 +272,9 @@ export default function Home() {
                   What if the price moves?
                 </h2>
                 <ScenarioPanel view={view} oracle={oracle} />
+                <div className="mt-4">
+                  <BreachCascade view={view} oracle={oracle} />
+                </div>
               </section>
             </Reveal>
 

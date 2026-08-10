@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run test/scoring.test.ts test/trail.test.ts test/stress.test.ts test/liquidation.test.ts",
+    "test": "vitest run test/scoring.test.ts test/trail.test.ts test/stress.test.ts test/liquidation.test.ts test/breach-cascade.test.ts",
     "test:live": "vitest run test/coston2-reader.integration.test.ts",
     "compile": "node script/compile.mjs",
     "deploy": "node script/deploy.mjs",
