@@ -4,10 +4,8 @@ import { useMemo, useState } from "react";
 
 import {
   byRobustness,
-  liquidationMoveBips,
   liquidationPriceUsd,
 } from "@/lib/scoring/liquidation";
-import { formatShock } from "@/lib/scoring/stress";
 import type { OracleView, RankingView } from "@/lib/utils/view";
 
 /**
@@ -15,13 +13,14 @@ import type { OracleView, RankingView } from "@/lib/utils/view";
  *
  * Takes the live XRP/USD price from FTSO and, for every agent, the price at
  * which its collateral ratio hits liquidation (derived from on-chain ratios,
- * exact). Draws a horizontal price axis from the current price down to the
- * deepest liquidation price, with a marker per agent where it breaches. A
- * what-if price control lets the user drag XRP to any level and see, live,
- * which agents have already fallen below their liquidation price.
+ * exact). Draws a horizontal price axis with a marker per agent where it
+ * breaches, and a what-if slider that reveals breached agents live.
  *
- * This is the moment the oracle *drives* the UI: the recommendation and the
- * risk story are anchored to a real market price, not just relative ratios.
+ * When FTSO is not served on testnet the live price is null. Rather than show
+ * an empty chart we plot against a synthetic $1.00 baseline: because the
+ * liquidation price is linear in the spot price (liqPrice = spot * (1 + move)),
+ * the *shape* of the chart is identical to any real price — only the $ labels
+ * are normalized. This keeps the cascade always populated and interactive.
  */
 export function BreachCascade({
   view,
@@ -30,13 +29,17 @@ export function BreachCascade({
   view: RankingView;
   oracle: OracleView | null;
 }) {
-  const xrpUsd = oracle?.fresh ? oracle.priceUsd : null;
+  const livePrice = oracle?.fresh ? oracle.priceUsd : null;
   const agents = useMemo(() => byRobustness(view.agents), [view.agents]);
 
-  // Absolute liquidation prices (only meaningful when we have a live price).
+  // Plotting price: live FTSO when fresh, else a synthetic $1.00 baseline.
+  const BASELINE = 1;
+  const effectivePrice = livePrice ?? BASELINE;
+  const usingBaseline = livePrice === null;
+
   const liqPrices = useMemo(
-    () => agents.map((a) => ({ a, price: liquidationPriceUsd(a, xrpUsd) })),
-    [agents, xrpUsd],
+    () => agents.map((a) => ({ a, price: liquidationPriceUsd(a, effectivePrice) })),
+    [agents, effectivePrice],
   );
 
   const deepest = liqPrices.reduce(
@@ -44,17 +47,14 @@ export function BreachCascade({
     null as number | null,
   );
 
-  // What-if price state. Default to current price (or a sensible fallback).
-  const [price, setPrice] = useState<number | null>(xrpUsd);
-  const scenarioPrice = price ?? xrpUsd;
+  const [price, setPrice] = useState<number | null>(effectivePrice);
+  const scenarioPrice = price ?? effectivePrice;
 
-  // Axis range: from current price down to deepest liquidation (or -60% if no price).
-  const axisTop = scenarioPrice ?? 1;
+  const axisTop = scenarioPrice ?? BASELINE;
   const axisBottom = deepest ?? (scenarioPrice ? scenarioPrice * 0.4 : 0.4);
   const span = Math.max(axisTop - axisBottom, 1e-9);
 
   const pctFromTop = (p: number) => {
-    // 0% at top (current), 100% at bottom (deepest). Higher price = higher on axis.
     const inv = (axisTop - p) / span;
     return Math.max(0, Math.min(100, inv * 100));
   };
@@ -63,23 +63,23 @@ export function BreachCascade({
     <div className="border border-[var(--color-line)] bg-[var(--color-surface)] p-5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h3 className="text-sm font-medium text-[var(--color-text)]">
-          Breach cascade — driven by the live XRP price
+          Breach cascade — driven by the XRP price
         </h3>
-        {xrpUsd !== null ? (
+        {livePrice !== null ? (
           <span className="num text-[11px] text-[var(--color-muted)]">
-            FTSO XRP/USD ${xrpUsd.toFixed(4)}
+            FTSO XRP/USD ${livePrice.toFixed(4)}
           </span>
         ) : (
           <span className="text-[11px] text-[var(--color-faint)]">
-            oracle-independent — % drawdown from on-chain ratios
+            normalized to $1.00 baseline (FTSO not served on testnet)
           </span>
         )}
       </div>
 
       <p className="mt-2 text-[11px] leading-relaxed text-[var(--color-faint)]">
         Each marker is the XRP price at which that agent liquidates (collateral
-        ratio hits its binding threshold). Drag the price to watch agents fall off
-        the cliff in order.
+        ratio hits its binding threshold). Drag the price to watch agents fall
+        off the cliff in order. {usingBaseline && "Labels are normalized to a $1.00 baseline; the relative positions are exact."}
       </p>
 
       {/* What-if price control */}
@@ -102,7 +102,6 @@ export function BreachCascade({
 
       {/* Cascade axis */}
       <div className="relative mt-5 h-64 border-l border-[var(--color-line-bright)] bg-[var(--color-surface-2)]">
-        {/* current price line */}
         {scenarioPrice !== null && (
           <div
             className="absolute left-0 right-0 border-t border-dashed border-[var(--color-good)]"
@@ -138,24 +137,13 @@ export function BreachCascade({
             </div>
           );
         })}
-
-        {xrpUsd === null && (
-          <div className="absolute bottom-2 left-2 right-2 text-[10px] text-[var(--color-faint)]">
-            No live price — markers show % drawdown instead:{" "}
-            {agents
-              .map((a) => `${a.agentVault.slice(0, 6)}… ${formatShock(Number(liquidationMoveBips(a)))}`)
-              .join("  ·  ")}
-          </div>
-        )}
       </div>
 
       {/* Legend / summary */}
       <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[11px]">
-        <span className="text-[var(--color-faint)]">
-          Breached at current price:
-        </span>
+        <span className="text-[var(--color-faint)]">Breached at current price:</span>
         {agents.filter(
-          (a) => scenarioPrice !== null && (liquidationPriceUsd(a, xrpUsd) ?? Infinity) >= scenarioPrice,
+          (a) => scenarioPrice !== null && (liquidationPriceUsd(a, effectivePrice) ?? Infinity) >= scenarioPrice,
         ).length === 0 ? (
           <span className="text-[var(--color-good)]">none — all agents survive this price</span>
         ) : (
@@ -163,7 +151,7 @@ export function BreachCascade({
             .filter(
               (a) =>
                 scenarioPrice !== null &&
-                (liquidationPriceUsd(a, xrpUsd) ?? Infinity) >= scenarioPrice,
+                (liquidationPriceUsd(a, effectivePrice) ?? Infinity) >= scenarioPrice,
             )
             .map((a) => (
               <span key={a.agentVault} className="text-[var(--color-bad)]">

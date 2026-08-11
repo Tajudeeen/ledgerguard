@@ -14,6 +14,7 @@ import { COSTON2_EXPLORER } from "@/lib/flare/coston2";
 import {
   FDC_HUB,
   FDC_URL_ATTESTATION_TYPE,
+  buildFdcCastCommand,
   encodeFdcRequest,
   encodeUrlMessage,
   fdcRequestCalldata,
@@ -166,6 +167,22 @@ export function FdcAttest({ agentVault }: { agentVault: string }) {
       {status.kind === "error" && (
         <div className="mt-3 text-xs text-[var(--color-bad)]">{status.message}</div>
       )}
+
+      <div className="mt-3 rounded border border-[var(--color-line)] bg-[var(--color-surface-2)] p-3">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] uppercase tracking-wider text-[var(--color-faint)]">
+            copy-ready command (run from your wallet console)
+          </span>
+        </div>
+        <pre className="num mt-2 whitespace-pre-wrap break-all text-[11px] text-[var(--color-text)]">
+          {buildFdcCastCommand(data)}
+        </pre>
+        <p className="mt-1 text-[10px] text-[var(--color-faint)]">
+          If the in-app button reverts (e.g. FDC fee/round not configured in your
+          environment), submit this from a wallet console — the relay is reachable
+          from your machine.
+        </p>
+      </div>
 
       <dl className="mt-3 grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
         <div className="flex justify-between gap-2 border-b border-[var(--color-line)] py-1">
