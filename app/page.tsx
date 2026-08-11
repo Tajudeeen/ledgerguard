@@ -11,6 +11,7 @@ import { RiskScore } from "@/components/RiskScore";
 import { ScenarioPanel } from "@/components/ScenarioPanel";
 import { BreachCascade } from "@/components/BreachCascade";
 import { MintAction } from "@/components/MintAction";
+import { FdcAttest } from "@/components/FdcAttest";
 import { ATTESTATION_ADDRESS } from "@/lib/attestation/abi";
 import { COSTON2_EXPLORER } from "@/lib/flare/coston2";
 import { formatShock } from "@/lib/scoring/stress";
@@ -333,6 +334,15 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
+              </section>
+            </Reveal>
+
+            <Reveal>
+              <section id="fdc" className="border-t border-[var(--color-line)] py-12">
+                <h2 className="mb-4 text-sm font-medium text-[var(--color-text)]">
+                  Independently verifiable by Flare FDC
+                </h2>
+                <FdcAttest agentVault={recommended.agentVault} />
               </section>
             </Reveal>
 
