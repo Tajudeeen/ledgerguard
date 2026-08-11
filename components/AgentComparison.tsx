@@ -9,14 +9,12 @@ import {
 } from "@/lib/utils/format";
 
 /**
- * The centrepiece: recommended agent against the cheapest one, with the
- * difference spelled out in numbers that all trace back to chain state.
+ * The centrepiece: every live agent as a ranked card, with the recommended
+ * one accented and the difference spelled out in numbers that all trace back
+ * to chain state.
  */
 export function AgentComparison({ view }: { view: RankingView }) {
-  const recommended = view.agents.find((a) => a.agentVault === view.recommendedVault);
-  const cheapest = view.agents.find((a) => a.agentVault === view.cheapestVault);
-
-  if (!recommended) {
+  if (!view.agents.length) {
     return (
       <div className="border border-[var(--color-bad)]/40 bg-[var(--color-bad)]/[0.06] p-6">
         <div className="text-sm font-medium text-[var(--color-bad)]">
@@ -28,40 +26,19 @@ export function AgentComparison({ view }: { view: RankingView }) {
       </div>
     );
   }
-
-  // When fees are identical the alternative shown is the weakest eligible
-  // agent, because "cheapest" carries no information in that case.
-  const alternative =
-    !view.feeSpreadExists || cheapest?.agentVault === recommended.agentVault
-      ? [...view.agents].reverse().find((a) => a.eligible && a.agentVault !== recommended.agentVault)
-      : cheapest;
-
   return (
     <div className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2">
-        <AgentCard
-          agent={recommended}
-          view={view}
-          title="LedgerGuard recommendation"
-          subtitle="strongest risk-adjusted position"
-          accent
-        />
-        {alternative ? (
+        {view.agents.map((a) => (
           <AgentCard
-            agent={alternative}
+            key={a.agentVault}
+            agent={a}
             view={view}
-            title={view.feeSpreadExists ? "Cheapest available" : "Weakest eligible alternative"}
-            subtitle={
-              view.feeSpreadExists
-                ? "lowest fee, ignoring risk"
-                : "same fee, materially worse position"
-            }
+            title={a.agentVault === view.recommendedVault ? "LedgerGuard recommendation" : a.eligible ? `Alternative #${a.rank}` : `Ineligible #${a.rank}`}
+            subtitle={a.agentVault === view.recommendedVault ? "strongest risk-adjusted position" : a.eligible ? "same fee, different risk" : "cannot take this mint"}
+            accent={a.agentVault === view.recommendedVault}
           />
-        ) : (
-          <div className="flex items-center border border-[var(--color-line)] bg-[var(--color-surface)] p-6 text-sm text-[var(--color-muted)]">
-            No alternative agent is eligible at this size.
-          </div>
-        )}
+        ))}
       </div>
 
       <div className="border-l-2 border-[var(--color-accent)] bg-[var(--color-surface)] px-5 py-4">

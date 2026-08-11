@@ -19,7 +19,7 @@ import { formatMove } from "@/lib/scoring/liquidation";
 import { fee, fxrp, headroom, ratio } from "@/lib/utils/format";
 import type { OracleView, RankingView } from "@/lib/utils/view";
 
-const PRESETS = [100, 500, 1000, 5000, 10000];
+const PRESETS = [100, 500, 1000, 5000];
 const SHOCKS = [0, -1000, -2500, -4000, -6000];  // BIPS: 0%, -10%, -25%, -40%, -60%
 
 export default function Home() {
@@ -367,7 +367,7 @@ export default function Home() {
 
             <footer className="border-t border-[var(--color-line)] py-8 text-[11px] leading-relaxed text-[var(--color-faint)]">
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-[var(--color-line)] pb-4">
-                <span className="font-medium text-[var(--color-text)]">© 2025 LedgerGuard</span>
+                <span className="font-medium text-[var(--color-text)]">© 2026 LedgerGuard</span>
                 <a
                   href="https://github.com/Tajudeeen/ledgerguard"
                   target="_blank"

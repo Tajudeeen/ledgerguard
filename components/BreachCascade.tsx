@@ -42,16 +42,15 @@ export function BreachCascade({
     [agents, effectivePrice],
   );
 
-  const deepest = liqPrices.reduce(
-    (min, p) => (p.price !== null && (min === null || p.price < min) ? p.price : min),
-    null as number | null,
-  );
-
   const [price, setPrice] = useState<number | null>(effectivePrice);
   const scenarioPrice = price ?? effectivePrice;
 
-  const axisTop = scenarioPrice ?? BASELINE;
-  const axisBottom = deepest ?? (scenarioPrice ? scenarioPrice * 0.4 : 0.4);
+  // Fixed axis bounds from the data (max of all liquidation prices and the
+  // current price, min of all liquidation prices), NOT from scenarioPrice —
+  // otherwise dragging the slider collapses the axis and it can't move back.
+  const allPrices = liqPrices.map((p) => p.price).filter((p): p is number => p !== null);
+  const axisTop = Math.max(effectivePrice, ...allPrices, BASELINE);
+  const axisBottom = Math.min(effectivePrice * 0.4, ...allPrices, BASELINE * 0.4);
   const span = Math.max(axisTop - axisBottom, 1e-9);
 
   const pctFromTop = (p: number) => {

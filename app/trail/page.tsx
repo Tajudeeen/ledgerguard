@@ -73,7 +73,7 @@ export default function TrailPage() {
 
       <footer className="mt-10 border-t border-[var(--color-line)] pt-4 text-[11px] leading-relaxed text-[var(--color-faint)]">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-[var(--color-line)] pb-4">
-          <span className="font-medium text-[var(--color-text)]">© 2025 LedgerGuard</span>
+          <span className="font-medium text-[var(--color-text)]">© 2026 LedgerGuard</span>
           <a
             href="https://github.com/Tajudeeen/ledgerguard"
             target="_blank"
