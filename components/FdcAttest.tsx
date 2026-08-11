@@ -14,8 +14,6 @@ import { COSTON2_EXPLORER } from "@/lib/flare/coston2";
 import {
   FDC_HUB,
   COSTON2_FDC_RELAY,
-  encodeWeb2JsonRequest,
-  getFdcRequestFee,
   prepareWeb2JsonViaRelay,
   requestAttestationCalldata,
 } from "@/lib/flare/fdc";
@@ -64,23 +62,15 @@ export function FdcAttest({ agentVault }: { agentVault: string }) {
       return;
     }
     try {
-      setStatus({ kind: "working", message: "Preparing FDC attestation…" });
+      setStatus({ kind: "working", message: "Preparing FDC attestation via relay…" });
 
-      // --- Step 1: get (abiEncodedRequest, fee) from relay or contract ---
-      // abiEncodedRequest is the `_data` argument for requestAttestation
-      // (the Request envelope), NOT the full function calldata.
-      let encodedRequest: Hex;
-      let fee: bigint;
-      try {
-        const prepared = await prepareWeb2JsonViaRelay(agentUrl);
-        encodedRequest = prepared.abiEncodedRequest;
-        fee = prepared.requestFee;
-      } catch {
-        // Relay unreachable from this environment — fall back to local encode
-        // + on-chain fee lookup. The fee lookup reverts if the type is closed.
-        encodedRequest = encodeWeb2JsonRequest(agentUrl);
-        fee = await getFdcRequestFee(encodedRequest);
-      }
+      // The relay supplies the correct sourceId + exact fee for Web2Json on
+      // Coston2. We do NOT hardcode a sourceId (an unsupported combo reverts
+      // in getRequestFee). If the relay is unreachable, we surface that and
+      // point to the relay link — no fake-success, no bad-sourceId revert.
+      const prepared = await prepareWeb2JsonViaRelay(agentUrl);
+      const encodedRequest = prepared.abiEncodedRequest;
+      const fee = prepared.requestFee;
 
       setStatus({ kind: "working", message: "Connecting wallet…" });
       const provider = window.ethereum;
@@ -155,9 +145,9 @@ export function FdcAttest({ agentVault }: { agentVault: string }) {
         lets anyone request an independent attestation of off-chain data. This
         button submits a real, signed{" "}
         <span className="num">FdcHub.requestAttestation(bytes)</span> Web2Json
-        attestation of the agent&apos;s public page — querying Flare&apos;s relay
-        (or the on-chain fee config) for the exact fee so it doesn&apos;t
-        revert on the wrong amount. LedgerGuard never holds your key.
+        attestation of the agent&apos;s public page — using Flare&apos;s FDC relay
+        to prepare the request (correct source + exact fee) so it doesn&apos;t
+        revert. LedgerGuard never holds your key.
       </p>
 
       {status.kind === "done" ? (

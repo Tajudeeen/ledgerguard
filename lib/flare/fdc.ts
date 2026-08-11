@@ -169,47 +169,67 @@ export async function getFdcRequestFee(requestBytes: Hex): Promise<bigint> {
 
 /**
  * Prepare a Web2Json attestation via Flare's FDC relay (the canonical,
- * round+fee-aware path). The relay returns the correctly-encoded request and
- * the exact fee. Reachable from the user's browser/app (not this sandbox).
+ * round+fee-aware path). The relay returns the correctly-encoded request (with
+ * the right sourceId) and the exact fee. Reachable from the user's
+ * browser/app (not this sandbox).
  *
- * Endpoint: POST {relay}/api/v1/fdc/request-attestation
+ * We try the two documented relay endpoint shapes; whichever responds with an
+ * abiEncodedRequest wins.
+ *   POST {relay}/api/v1/fdc/request-attestation
+ *   POST {relay}/api/v1/fdc/prepare-attestation-request
  * Body: { sourceId, attestationType: "Web2Json", requestBody: {...} }
- * Returns: { abiEncodedRequest, requestFee } (field names per Flare FDC docs).
  */
 export async function prepareWeb2JsonViaRelay(
   url: string,
   relay: string = COSTON2_FDC_RELAY,
 ): Promise<{ abiEncodedRequest: Hex; requestFee: bigint }> {
-  const res = await fetch(`${relay}/api/v1/fdc/request-attestation`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      sourceId: WEB2JSON_SOURCE_ID,
-      attestationType: "Web2Json",
-      requestBody: {
-        url,
-        httpMethod: "GET",
-        headers: "{}",
-        queryParams: "",
-        body: "{}",
-        postProcessJq: ".",
-        abiSignature: "(string)",
-      },
-    }),
+  const body = JSON.stringify({
+    sourceId: WEB2JSON_SOURCE_ID,
+    attestationType: "Web2Json",
+    requestBody: {
+      url,
+      httpMethod: "GET",
+      headers: "{}",
+      queryParams: "",
+      body: "{}",
+      postProcessJq: ".",
+      abiSignature: "(string)",
+    },
   });
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`FDC relay ${res.status}: ${text.slice(0, 200)}`);
+  const endpoints = [
+    "/api/v1/fdc/request-attestation",
+    "/api/v1/fdc/prepare-attestation-request",
+  ];
+  let lastErr = "";
+  for (const ep of endpoints) {
+    try {
+      const res = await fetch(`${relay}${ep}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body,
+      });
+      if (!res.ok) {
+        lastErr = `relay ${ep} ${res.status}`;
+        continue;
+      }
+      const json = (await res.json()) as {
+        abiEncodedRequest?: string;
+        requestFee?: string | number;
+      };
+      if (!json.abiEncodedRequest) {
+        lastErr = `relay ${ep}: no abiEncodedRequest`;
+        continue;
+      }
+      return {
+        abiEncodedRequest: json.abiEncodedRequest as Hex,
+        requestFee: BigInt(json.requestFee ?? 0),
+      };
+    } catch (e) {
+      lastErr = `relay ${ep}: ${e instanceof Error ? e.message : String(e)}`;
+      continue;
+    }
   }
-  const json = (await res.json()) as {
-    abiEncodedRequest?: string;
-    requestFee?: string | number;
-  };
-  if (!json.abiEncodedRequest) throw new Error("FDC relay returned no abiEncodedRequest");
-  return {
-    abiEncodedRequest: json.abiEncodedRequest as Hex,
-    requestFee: BigInt(json.requestFee ?? 0),
-  };
+  throw new Error(`FDC relay unreachable (${lastErr}). Use the relay link below to submit manually.`);
 }
 
 export function fdcClient() {
