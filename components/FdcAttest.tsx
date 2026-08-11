@@ -13,7 +13,6 @@ import { flareTestnet } from "viem/chains";
 import { COSTON2_EXPLORER } from "@/lib/flare/coston2";
 import {
   FDC_HUB,
-  COSTON2_FDC_RELAY,
   prepareWeb2JsonViaRelay,
   requestAttestationCalldata,
 } from "@/lib/flare/fdc";
@@ -197,15 +196,17 @@ export function FdcAttest({ agentVault }: { agentVault: string }) {
           fallback — FDC relay (prepares round + fee)
         </div>
         <a
-          href={COSTON2_FDC_RELAY}
+          href="https://dev.flare.network/fdc/overview"
           target="_blank"
           rel="noreferrer"
           className="mt-2 inline-block break-all text-[11px] text-[var(--color-accent)] hover:underline"
         >
-          {COSTON2_FDC_RELAY}
+          dev.flare.network/fdc/overview (current relay endpoint)
         </a>
         <p className="mt-2 text-[10px] text-[var(--color-faint)]">
-          Attestation target: <span className="num">{agentUrl}</span>
+          If the relay host moved, set <span className="num">NEXT_PUBLIC_FDC_RELAY</span>{" "}
+          in the deploy env to the live Coston2 FDC URL. Attestation target:{" "}
+          <span className="num">{agentUrl}</span>
         </p>
       </div>
     </div>

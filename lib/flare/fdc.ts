@@ -40,6 +40,20 @@ export const FDC_REQUEST_SELECTOR = "0x6238f354" as const; // requestAttestation
 export const COSTON2_FDC_RELAY = "https://coston2-fdc-test.flare.network";
 
 /**
+ * Candidate Coston2 FDC relay hosts, tried in order. The `-test` subdomain
+ * has been decommissioned (DNS ERR_NAME_NOT_RESOLVED as of Aug 2026), so we
+ * try the current candidates too. Override with NEXT_PUBLIC_FDC_RELAY to pin
+ * the exact live host from the deploy env (e.g. Render dashboard).
+ */
+export const FDC_RELAY_CANDIDATES: string[] = [
+  process.env.NEXT_PUBLIC_FDC_RELAY?.replace(/\/$/, "") ||
+    "https://coston2-fdc.flare.network",
+  "https://coston2-fdc-test.flare.network",
+  "https://coston2-api.flare.network/fdc",
+  COSTON2_FDC_RELAY.replace(/\/$/, ""),
+].filter(Boolean);
+
+/**
  * Web2Json attestation type. The canonical FDC attestation-type bytes32 for
  * Web2Json. The relay prepare endpoint also accepts the string "Web2Json", so
  * we use the string name for the relay call and this bytes32 for the direct
@@ -173,16 +187,12 @@ export async function getFdcRequestFee(requestBytes: Hex): Promise<bigint> {
  * the right sourceId) and the exact fee. Reachable from the user's
  * browser/app (not this sandbox).
  *
- * We try the two documented relay endpoint shapes; whichever responds with an
- * abiEncodedRequest wins.
- *   POST {relay}/api/v1/fdc/request-attestation
- *   POST {relay}/api/v1/fdc/prepare-attestation-request
- * Body: { sourceId, attestationType: "Web2Json", requestBody: {...} }
+ * Tries each candidate relay host (see FDC_RELAY_CANDIDATES) against both
+ * documented endpoint shapes; whichever returns an abiEncodedRequest wins.
  */
 export async function prepareWeb2JsonViaRelay(
   url: string,
-  relay: string = COSTON2_FDC_RELAY,
-): Promise<{ abiEncodedRequest: Hex; requestFee: bigint }> {
+): Promise<{ abiEncodedRequest: Hex; requestFee: bigint; relay: string }> {
   const body = JSON.stringify({
     sourceId: WEB2JSON_SOURCE_ID,
     attestationType: "Web2Json",
@@ -200,36 +210,42 @@ export async function prepareWeb2JsonViaRelay(
     "/api/v1/fdc/request-attestation",
     "/api/v1/fdc/prepare-attestation-request",
   ];
-  let lastErr = "";
-  for (const ep of endpoints) {
-    try {
-      const res = await fetch(`${relay}${ep}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body,
-      });
-      if (!res.ok) {
-        lastErr = `relay ${ep} ${res.status}`;
+  const errors: string[] = [];
+  for (const base of FDC_RELAY_CANDIDATES) {
+    for (const ep of endpoints) {
+      try {
+        const res = await fetch(`${base}${ep}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body,
+        });
+        if (!res.ok) {
+          errors.push(`${base}${ep} ${res.status}`);
+          continue;
+        }
+        const json = (await res.json()) as {
+          abiEncodedRequest?: string;
+          requestFee?: string | number;
+        };
+        if (!json.abiEncodedRequest) {
+          errors.push(`${base}${ep}: no abiEncodedRequest`);
+          continue;
+        }
+        return {
+          abiEncodedRequest: json.abiEncodedRequest as Hex,
+          requestFee: BigInt(json.requestFee ?? 0),
+          relay: base,
+        };
+      } catch (e) {
+        errors.push(`${base}${ep}: ${e instanceof Error ? e.message.split("\n")[0] : String(e)}`);
         continue;
       }
-      const json = (await res.json()) as {
-        abiEncodedRequest?: string;
-        requestFee?: string | number;
-      };
-      if (!json.abiEncodedRequest) {
-        lastErr = `relay ${ep}: no abiEncodedRequest`;
-        continue;
-      }
-      return {
-        abiEncodedRequest: json.abiEncodedRequest as Hex,
-        requestFee: BigInt(json.requestFee ?? 0),
-      };
-    } catch (e) {
-      lastErr = `relay ${ep}: ${e instanceof Error ? e.message : String(e)}`;
-      continue;
     }
   }
-  throw new Error(`FDC relay unreachable (${lastErr}). Use the relay link below to submit manually.`);
+  throw new Error(
+    `FDC relay unreachable on all candidates (${errors.slice(0, 3).join(" | ")}). ` +
+      `Set NEXT_PUBLIC_FDC_RELAY to the live Coston2 FDC host, or use the FDC docs link.`,
+  );
 }
 
 export function fdcClient() {
