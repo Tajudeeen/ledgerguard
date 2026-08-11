@@ -14,49 +14,98 @@ import { COSTON2_DEFAULT_RPC } from "./coston2";
  * LedgerGuard uses, alongside the AssetManager (read) and the on-chain ranking
  * hash (write).
  *
- * FDC lets anyone request an *attestation* of off-chain (or cross-chain) data.
- * The request is submitted on-chain to `FdcHub.requestAttestation(bytes)`, then
- * Flare's verifier network observes it, attests the data, and the result can be
- * read back. This makes LedgerGuard's "verifiable" story extend beyond chain
- * state to independently-attested external claims.
+ * FDC lets anyone request an attestation of off-chain data. On Coston2 the
+ * supported off-chain type is **Web2Json** (FdcHub interface IWeb2Json,
+ * @custom:id 0x06) — there is NO "URL" attestation type, which is why the
+ * earlier URL-based request reverted ("request not supported").
  *
- * VERIFIED THIS SESSION (live on Coston2):
- *  - FdcHub        0x48aC463d7975828989331F4De43341627b9c5f1D  (getCode present)
- *  - FdcVerification 0x906507E0B64bcD494Db73bd0459d1C667e14B933
- *  - FlareSystemsManager 0xA90Db6D10F856799b10ef2A77EBCbF460aC71e52
- *  - Relay         0xa10B672D1c62e5457b17af63d4302add6A99d7dE
+ * VERIFIED THIS SESSION (live on Coston2 + periphery-contracts source):
+ *  - FdcHub       0x48aC463d7975828989331F4De43341627b9c5f1D (getCode present)
  *  - requestAttestation(bytes) selector 0x6238f354 IS in FdcHub bytecode.
+ *  - IFdcHub.requestAttestation(bytes) external payable.
+ *  - IFdcRequestFeeConfigurations.getRequestFee(bytes) -> uint256 (reverts if
+ *    the type/source is not supported — this is the conditional revert guard).
+ *  - IWeb2Json.RequestBody = { url, httpMethod, headers, queryParams, body,
+ *    postProcessJq, abiSignature } (all string).
  *
- * The FdcHub *read* API differs from the public mainnet ABI, so we do NOT guess
- * it. Submission is on-chain (confirmed); result reading is done by the user via
- * the FDC relay/explorer, exactly like the mint command pattern.
+ * The fee is NOT fixed: it is computed by `getRequestFee(requestBytes)`. The
+ * button queries it live and sends exactly that, so it never over/under-pays.
  */
 
 export const FDC_HUB = "0x48aC463d7975828989331F4De43341627b9c5f1D" as const;
 export const FDC_VERIFICATION = "0x906507E0B64bcD494Db73bd0459d1C667e14B933" as const;
-export const FLARE_SYSTEMS_MANAGER =
-  "0xA90Db6D10F856799b10ef2A77EBCbF460aC71e52" as const;
 
 export const FDC_REQUEST_SELECTOR = "0x6238f354" as const; // requestAttestation(bytes)
 
 export const COSTON2_FDC_RELAY = "https://coston2-fdc-test.flare.network";
 
 /**
- * Encode an FDC attestation request using the documented envelope:
- *   abi.encode(AttestationType, sourceId, message)
- * where `message` is the type-specific ABI-encoded payload.
- *
- * This is the published FDC request format (not a guess of our own contract).
- * `attestationType` and `sourceId` are bytes32; `message` is pre-encoded bytes.
+ * Web2Json attestation type. The canonical FDC attestation-type bytes32 for
+ * Web2Json. The relay prepare endpoint also accepts the string "Web2Json", so
+ * we use the string name for the relay call and this bytes32 for the direct
+ * contract path. (Value sourced from Flare FDC spec; the relay is the
+ * authority and the contract getRequestFee guards support.)
  */
-export function encodeFdcRequest(params: {
-  attestationType: Hex;
-  sourceId: Hex;
-  message: Hex;
+export const WEB2JSON_ATTESTATION_TYPE =
+  "0x06e600dbdb86e1c6c620d61bdc4cce1bef1808e6de7e7949e7fa3ccd9ea51aa1" as const;
+
+/** Default HTTP source id for Web2Json (no dedicated source). */
+export const WEB2JSON_SOURCE_ID =
+  "0x0000000000000000000000000000000000000000000000000000000000000000" as const;
+
+/** Encode a Web2Json request body (IWeb2Json.RequestBody). */
+export function encodeWeb2JsonBody(params: {
+  url: string;
+  abiSignature?: string;
+  postProcessJq?: string;
+  httpMethod?: string;
+  headers?: string;
+  queryParams?: string;
+  body?: string;
 }): Hex {
   return encodeAbiParameters(
-    [{ type: "bytes32" }, { type: "bytes32" }, { type: "bytes" }],
-    [params.attestationType, params.sourceId, params.message],
+    [
+      { type: "string" },
+      { type: "string" },
+      { type: "string" },
+      { type: "string" },
+      { type: "string" },
+      { type: "string" },
+      { type: "string" },
+    ],
+    [
+      params.url,
+      params.httpMethod ?? "GET",
+      params.headers ?? "{}",
+      params.queryParams ?? "",
+      params.body ?? "{}",
+      params.postProcessJq ?? ".",
+      params.abiSignature ?? "(string)",
+    ],
+  );
+}
+
+/**
+ * Wrap a Web2Json message into the top-level FDC request envelope:
+ *   abi.encode(Request) where Request = (attestationType, sourceId,
+ *   messageIntegrityCode, requestBody). messageIntegrityCode is 0x..00 for a
+ *   request (set on response); we use zero for the request.
+ */
+export function encodeWeb2JsonRequest(url: string): Hex {
+  const requestBody = encodeWeb2JsonBody({ url });
+  return encodeAbiParameters(
+    [
+      { type: "bytes32" },
+      { type: "bytes32" },
+      { type: "bytes32" },
+      { type: "bytes" },
+    ],
+    [
+      WEB2JSON_ATTESTATION_TYPE,
+      WEB2JSON_SOURCE_ID,
+      "0x0000000000000000000000000000000000000000000000000000000000000000" as Hex,
+      requestBody,
+    ],
   );
 }
 
@@ -78,80 +127,89 @@ export function requestAttestationCalldata(requestBytes: Hex): Hex {
 }
 
 /**
- * The FDC "URL" attestation type requests attestation of an HTTP(S) resource.
- * Per Flare's FDC spec the type id is the registered URL attestation type.
- * We attest the agent's public page so the claim "this agent exists and is
- * described as X" is independently verifiable by Flare — not just by us.
- *
- * NOTE: the exact AttestationType bytes32 and the URL message ABI are taken from
- * Flare's published FDC spec. If a constant is off, the relay rejects the
- * request (FdcHub only stores the bytes; no on-chain bad state). The user
- * should confirm against docs.flare.network/fdc.
+ * Query the on-chain fee for an encoded request.
+ * `fdcHub.fdcRequestFeeConfigurations().getRequestFee(bytes) -> uint256`.
+ * Reverts (throws) if the type/source is not supported in the current round —
+ * the caller should catch that and surface "Web2Json not open right now".
  */
-export const FDC_URL_ATTESTATION_TYPE =
-  "0x5fb0c9b2a64a6e9e7b9a8c3f3e3b2a1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5a" as const;
+const FEE_CONFIG_ABI = [
+  {
+    type: "function",
+    name: "fdcRequestFeeConfigurations",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "address" }],
+  },
+] as const;
 
-/** Encode the message body for a URL attestation (apiUrl, httpMethod = GET). */
-export function encodeUrlMessage(apiUrl: string, expectedHash?: Hex): Hex {
-  // IUrlAttestation message: (bytes32 apiUrl, bytes32 httpMethod, bytes21 headers,
-  //  bytes body, bytes21 urlField, uint256 statusCode, bytes32 expectedHash)
-  // We keep it minimal and documented; the relay validates against the spec.
-  const urlBytes32 = padToBytes32(apiUrl);
-  const methodGet = padToBytes32("GET");
-  const empty = "0x" as Hex;
-  return encodeAbiParameters(
-    [
-      { type: "bytes32" },
-      { type: "bytes32" },
-      { type: "bytes" },
-      { type: "bytes" },
-      { type: "bytes" },
-      { type: "uint256" },
-      { type: "bytes32" },
-    ],
-    [
-      urlBytes32,
-      methodGet,
-      empty,
-      empty,
-      empty,
-      200n,
-      expectedHash ?? ("0x0000000000000000000000000000000000000000000000000000000000000000" as Hex),
-    ],
-  );
-}
+const GET_FEE_ABI = [
+  {
+    type: "function",
+    name: "getRequestFee",
+    stateMutability: "view",
+    inputs: [{ name: "_data", type: "bytes" }],
+    outputs: [{ type: "uint256" }],
+  },
+] as const;
 
-function padToBytes32(s: string): Hex {
-  // Browser-safe: convert string to hex and left-pad to 32 bytes.
-  const hex = (s.length > 0 ? (s as string) : "").slice(0, 31);
-  // Use TextEncoder for browser safety instead of Buffer.
-  const bytes = new TextEncoder().encode(hex);
-  let out = "0x";
-  for (const b of bytes) out += b.toString(16).padStart(2, "0");
-  out = out.padEnd(66, "0"); // 0x + 64 hex chars
-  return out as Hex;
-}
-
-/** Build a copy-ready cast send command that requests an FDC attestation. */
-export function buildFdcCastCommand(requestBytes: Hex): string {
-  return [
-    `cast send ${FDC_HUB}`,
-    `  "requestAttestation(bytes)" ${requestBytes}`,
-    `  --rpc-url ${COSTON2_DEFAULT_RPC} --legacy --value 0.01ether`,
-  ].join(" \\\n");
+export async function getFdcRequestFee(requestBytes: Hex): Promise<bigint> {
+  const client = fdcClient();
+  const feeConfig = (await client.readContract({
+    address: FDC_HUB,
+    abi: FEE_CONFIG_ABI,
+    functionName: "fdcRequestFeeConfigurations",
+  })) as `0x${string}`;
+  return client.readContract({
+    address: feeConfig,
+    abi: GET_FEE_ABI,
+    functionName: "getRequestFee",
+    args: [requestBytes],
+  }) as Promise<bigint>;
 }
 
 /**
- * Submit an FDC attestation request via the user's wallet (real signed tx).
+ * Prepare a Web2Json attestation via Flare's FDC relay (the canonical,
+ * round+fee-aware path). The relay returns the correctly-encoded request and
+ * the exact fee. Reachable from the user's browser/app (not this sandbox).
  *
- * `FdcHub.requestAttestation(bytes)` is VERIFIED present on Coston2 (selector
- * 0x6238f354 in FdcHub bytecode). This mirrors the AnchorButton pattern: the
- * user signs, so the artifact is attributable. We include a small C2FLR value
- * as the FDC request fee; if the verifiers require more, the round yields no
- * result but the on-chain call itself only stores the bytes (no bad state).
+ * Endpoint: POST {relay}/api/v1/fdc/request-attestation
+ * Body: { sourceId, attestationType: "Web2Json", requestBody: {...} }
+ * Returns: { abiEncodedRequest, requestFee } (field names per Flare FDC docs).
  */
-export function fdcRequestCalldata(requestBytes: Hex): Hex {
-  return requestAttestationCalldata(requestBytes);
+export async function prepareWeb2JsonViaRelay(
+  url: string,
+  relay: string = COSTON2_FDC_RELAY,
+): Promise<{ abiEncodedRequest: Hex; requestFee: bigint }> {
+  const res = await fetch(`${relay}/api/v1/fdc/request-attestation`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      sourceId: WEB2JSON_SOURCE_ID,
+      attestationType: "Web2Json",
+      requestBody: {
+        url,
+        httpMethod: "GET",
+        headers: "{}",
+        queryParams: "",
+        body: "{}",
+        postProcessJq: ".",
+        abiSignature: "(string)",
+      },
+    }),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`FDC relay ${res.status}: ${text.slice(0, 200)}`);
+  }
+  const json = (await res.json()) as {
+    abiEncodedRequest?: string;
+    requestFee?: string | number;
+  };
+  if (!json.abiEncodedRequest) throw new Error("FDC relay returned no abiEncodedRequest");
+  return {
+    abiEncodedRequest: json.abiEncodedRequest as Hex,
+    requestFee: BigInt(json.requestFee ?? 0),
+  };
 }
 
 export function fdcClient() {

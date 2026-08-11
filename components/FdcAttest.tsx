@@ -13,10 +13,11 @@ import { flareTestnet } from "viem/chains";
 import { COSTON2_EXPLORER } from "@/lib/flare/coston2";
 import {
   FDC_HUB,
-  FDC_URL_ATTESTATION_TYPE,
-  encodeFdcRequest,
-  encodeUrlMessage,
-  fdcRequestCalldata,
+  COSTON2_FDC_RELAY,
+  encodeWeb2JsonRequest,
+  getFdcRequestFee,
+  prepareWeb2JsonViaRelay,
+  requestAttestationCalldata,
 } from "@/lib/flare/fdc";
 
 type Status =
@@ -35,29 +36,27 @@ declare global {
 }
 
 const COSTON2_HEX = "0x72"; // 114
-const FDC_RELAY = "https://coston2-fdc-test.flare.network/";
 
 /**
  * Flare Data Connector (FDC) — the third Flare primitive LedgerGuard uses.
  *
- * The "Attest agent via FDC" button performs a REAL, wallet-signed
- * `FdcHub.requestAttestation(bytes)` (verified present on Coston2). Direct
- * submits succeed when an FDC attestation round is open for the type; they
- * revert when no round is open or the fee differs — so we surface the exact
- * revert reason instead of failing silently, and link the relay as the
- * guaranteed path (the relay only accepts during open rounds and computes the
- * fee). LedgerGuard never holds a key.
+ * This button submits a REAL, wallet-signed `FdcHub.requestAttestation(bytes)`
+ * (verified present on Coston2) for a Web2Json attestation of the recommended
+ * agent's public page — so the claim is independently verifiable by Flare, not
+ * just by us.
+ *
+ * To make it work reliably (not "sometimes"), it:
+ *  1. prepares the request via Flare's FDC relay (canonical, round+fee-aware),
+ *     OR falls back to encoding locally + querying the on-chain fee;
+ *  2. sends the EXACT fee returned (no hardcoded value);
+ *  3. surfaces a clear reason if the type/round isn't open.
+ *
+ * (Earlier a bogus "URL" attestation type was used, which isn't registered on
+ * Coston2, so getRequestFee reverted. Web2Json is the supported type.)
  */
 export function FdcAttest({ agentVault }: { agentVault: string }) {
   const agentUrl = `${COSTON2_EXPLORER}/address/${agentVault}`;
   const [status, setStatus] = useState<Status>({ kind: "idle" });
-
-  const requestBytes = encodeFdcRequest({
-    attestationType: FDC_URL_ATTESTATION_TYPE,
-    sourceId: "0x0000000000000000000000000000000000000000000000000000000000000000" as Hex,
-    message: encodeUrlMessage(agentUrl),
-  });
-  const data = fdcRequestCalldata(requestBytes);
 
   async function attest() {
     if (!window.ethereum) {
@@ -65,6 +64,24 @@ export function FdcAttest({ agentVault }: { agentVault: string }) {
       return;
     }
     try {
+      setStatus({ kind: "working", message: "Preparing FDC attestation…" });
+
+      // --- Step 1: get (abiEncodedRequest, fee) from relay or contract ---
+      // abiEncodedRequest is the `_data` argument for requestAttestation
+      // (the Request envelope), NOT the full function calldata.
+      let encodedRequest: Hex;
+      let fee: bigint;
+      try {
+        const prepared = await prepareWeb2JsonViaRelay(agentUrl);
+        encodedRequest = prepared.abiEncodedRequest;
+        fee = prepared.requestFee;
+      } catch {
+        // Relay unreachable from this environment — fall back to local encode
+        // + on-chain fee lookup. The fee lookup reverts if the type is closed.
+        encodedRequest = encodeWeb2JsonRequest(agentUrl);
+        fee = await getFdcRequestFee(encodedRequest);
+      }
+
       setStatus({ kind: "working", message: "Connecting wallet…" });
       const provider = window.ethereum;
       const accounts = (await provider.request({ method: "eth_requestAccounts" })) as string[];
@@ -104,28 +121,24 @@ export function FdcAttest({ agentVault }: { agentVault: string }) {
         transport: http(),
       });
 
-      setStatus({ kind: "working", message: "Confirm in wallet — FDC request…" });
+      setStatus({ kind: "working", message: "Confirm in wallet — FDC request fee…" });
       const txHash = await wallet.sendTransaction({
         to: FDC_HUB,
-        data,
-        value: 10_000_000_000_000_000n, // 0.01 C2FLR toward the FDC request fee
+        data: requestAttestationCalldata(encodedRequest),
+        value: fee,
       });
 
       setStatus({ kind: "working", message: "Waiting for confirmation…" });
       const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
       if (receipt.status !== "success") {
-        throw new Error("Reverted — FDC round may be closed or fee differs. Use the relay link below.");
+        throw new Error("Reverted — FDC round may be closed for Web2Json. Use the relay link below.");
       }
 
       setStatus({ kind: "done", txHash });
     } catch (error) {
       setStatus({
         kind: "error",
-        message:
-          error instanceof Error
-            ? ((error as unknown as { shortMessage?: string }).shortMessage ||
-                error.message).split("\n")[0]
-            : "FDC request failed",
+        message: error instanceof Error ? (error as unknown as { shortMessage?: string }).shortMessage || error.message.split("\n")[0] : "FDC request failed",
       });
     }
   }
@@ -141,11 +154,10 @@ export function FdcAttest({ agentVault }: { agentVault: string }) {
         primitive is the <span className="num">Data Connector (FDC)</span>: it
         lets anyone request an independent attestation of off-chain data. This
         button submits a real, signed{" "}
-        <span className="num">FdcHub.requestAttestation(bytes)</span> request
-        (verified live) asking Flare&apos;s verifier network to confirm the
-        agent&apos;s public page. It succeeds when an FDC round is open for the
-        type; if it reverts, the relay link below is the guaranteed path.
-        LedgerGuard never holds your key.
+        <span className="num">FdcHub.requestAttestation(bytes)</span> Web2Json
+        attestation of the agent&apos;s public page — querying Flare&apos;s relay
+        (or the on-chain fee config) for the exact fee so it doesn&apos;t
+        revert on the wrong amount. LedgerGuard never holds your key.
       </p>
 
       {status.kind === "done" ? (
@@ -185,22 +197,22 @@ export function FdcAttest({ agentVault }: { agentVault: string }) {
           <dd className="num text-[var(--color-text)]">FdcHub {FDC_HUB.slice(0, 8)}…</dd>
         </div>
         <div className="flex justify-between gap-2 border-b border-[var(--color-line)] py-1">
-          <dt className="text-[var(--color-faint)]">attests</dt>
-          <dd className="num text-[var(--color-text)]">{agentVault.slice(0, 10)}…</dd>
+          <dt className="text-[var(--color-faint)]">type</dt>
+          <dd className="num text-[var(--color-text)]">Web2Json (0x06)</dd>
         </div>
       </dl>
 
       <div className="mt-3 rounded border border-[var(--color-line)] bg-[var(--color-surface-2)] p-3">
         <div className="text-[10px] uppercase tracking-wider text-[var(--color-faint)]">
-          guaranteed path — FDC relay (prepares round + fee)
+          fallback — FDC relay (prepares round + fee)
         </div>
         <a
-          href={FDC_RELAY}
+          href={COSTON2_FDC_RELAY}
           target="_blank"
           rel="noreferrer"
           className="mt-2 inline-block break-all text-[11px] text-[var(--color-accent)] hover:underline"
         >
-          {FDC_RELAY}
+          {COSTON2_FDC_RELAY}
         </a>
         <p className="mt-2 text-[10px] text-[var(--color-faint)]">
           Attestation target: <span className="num">{agentUrl}</span>
