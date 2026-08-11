@@ -93,11 +93,30 @@ export default function Home() {
             Pick an FXRP minting agent you can actually trust — and prove it later.
           </h1>
           <p className="mt-3 max-w-xl text-sm text-[var(--color-muted)]">
-            Every agent on Coston2 charges the same 0.25% fee, so fee is a useless
-            signal. LedgerGuard ranks by collateral risk instead, tracks each agent&apos;s
-            behavior in a verifiable on-chain trail, and anchors every ranking so anyone
-            can replay and confirm it. Then it hands you the exact mint parameters.
+            To mint FXRP you deposit collateral with an agent — pick the wrong one
+            and a small XRP drop liquidates your position. Every agent on Coston2
+            charges the same 0.25% fee, so fee is a useless signal. LedgerGuard
+            ranks by collateral risk instead, tracks each agent&apos;s behavior in a
+            verifiable on-chain trail, and anchors every ranking so anyone can
+            replay and confirm it. Then it hands you the exact mint parameters.
           </p>
+
+          <div className="mt-5 flex flex-wrap gap-2 text-[11px]">
+            {[
+              ["Read", "every live Coston2 agent + its collateral"],
+              ["Rank", "by projected headroom, not fee"],
+              ["Anchor", "the ranking on-chain so it's verifiable"],
+            ].map(([step, desc], i) => (
+              <div
+                key={step}
+                className="flex items-center gap-2 border border-[var(--color-line)] bg-[var(--color-surface)] px-3 py-2"
+              >
+                <span className="num text-[var(--color-accent)]">{i + 1}</span>
+                <span className="font-medium text-[var(--color-text)]">{step}</span>
+                <span className="text-[var(--color-faint)]">{desc}</span>
+              </div>
+            ))}
+          </div>
 
           <form
             className="mt-7"
@@ -347,14 +366,28 @@ export default function Home() {
             </Reveal>
 
             <footer className="border-t border-[var(--color-line)] py-8 text-[11px] leading-relaxed text-[var(--color-faint)]">
-              LedgerGuard is a decision aid, not a guarantee. Every figure is a read-only
-              estimate from Coston2 state at block <span className="num">{view.blockNumber}</span>.
-              The crash-scenario and price-shock columns are deterministic sensitivity
-              analyses on the on-chain collateral ratios — they isolate how an adverse
-              move erodes headroom and are not part of the anchored ranking. Collateral
-              ratios, oracle prices and agent availability change continuously; a ranking
-              can be stale the moment after it is produced. LedgerGuard does not execute
-              mints and does not replace AssetManager enforcement.
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-[var(--color-line)] pb-4">
+                <span className="font-medium text-[var(--color-text)]">© 2025 LedgerGuard</span>
+                <a
+                  href="https://github.com/Tajudeeen/ledgerguard"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[var(--color-muted)] hover:text-[var(--color-text)]"
+                >
+                  GitHub
+                </a>
+                <span>Built for the Summer Signal hackathon · Flare Coston2</span>
+              </div>
+              <p className="mt-4">
+                LedgerGuard is a decision aid, not a guarantee. Every figure is a read-only
+                estimate from Coston2 state at block <span className="num">{view.blockNumber}</span>.
+                The crash-scenario and price-shock columns are deterministic sensitivity
+                analyses on the on-chain collateral ratios — they isolate how an adverse
+                move erodes headroom and are not part of the anchored ranking. Collateral
+                ratios, oracle prices and agent availability change continuously; a ranking
+                can be stale the moment after it is produced. LedgerGuard does not execute
+                mints and does not replace AssetManager enforcement.
+              </p>
             </footer>
           </>
         )}

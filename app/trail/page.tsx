@@ -72,14 +72,28 @@ export default function TrailPage() {
       )}
 
       <footer className="mt-10 border-t border-[var(--color-line)] pt-4 text-[11px] leading-relaxed text-[var(--color-faint)]">
-        Each point in a trail is an attestation on Coston2: a hash of the full
-        ranking at a pinned block, signed by whoever anchored it. The ranking for
-        that point is cached; you can independently confirm it by re-reading the
-        AssetManager at the attestation&apos;s snapshot block with
-        <span className="num"> script/reproduce.ts</span>. The trail is a record
-        of what was recommended and when — not a prediction, and not a guarantee.
-        Stability scores describe how consistently safe and available an agent
-        has been across the recorded window.
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-[var(--color-line)] pb-4">
+          <span className="font-medium text-[var(--color-text)]">© 2025 LedgerGuard</span>
+          <a
+            href="https://github.com/Tajudeeen/ledgerguard"
+            target="_blank"
+            rel="noreferrer"
+            className="text-[var(--color-muted)] hover:text-[var(--color-text)]"
+          >
+            GitHub
+          </a>
+          <span>Built for the Summer Signal hackathon · Flare Coston2</span>
+        </div>
+        <p className="mt-4">
+          Each point in a trail is an attestation on Coston2: a hash of the full
+          ranking at a pinned block, signed by whoever anchored it. The ranking for
+          that point is cached; you can independently confirm it by re-reading the
+          AssetManager at the attestation&apos;s snapshot block with
+          <span className="num"> script/reproduce.ts</span>. The trail is a record
+          of what was recommended and when — not a prediction, and not a guarantee.
+          Stability scores describe how consistently safe and available an agent
+          has been across the recorded window.
+        </p>
       </footer>
     </main>
   );
