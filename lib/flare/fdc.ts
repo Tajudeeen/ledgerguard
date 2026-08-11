@@ -141,6 +141,19 @@ export function buildFdcCastCommand(requestBytes: Hex): string {
   ].join(" \\\n");
 }
 
+/**
+ * Submit an FDC attestation request via the user's wallet (real signed tx).
+ *
+ * `FdcHub.requestAttestation(bytes)` is VERIFIED present on Coston2 (selector
+ * 0x6238f354 in FdcHub bytecode). This mirrors the AnchorButton pattern: the
+ * user signs, so the artifact is attributable. We include a small C2FLR value
+ * as the FDC request fee; if the verifiers require more, the round yields no
+ * result but the on-chain call itself only stores the bytes (no bad state).
+ */
+export function fdcRequestCalldata(requestBytes: Hex): Hex {
+  return requestAttestationCalldata(requestBytes);
+}
+
 export function fdcClient() {
   return createPublicClient({ chain: flareTestnet, transport: http(COSTON2_DEFAULT_RPC) });
 }
