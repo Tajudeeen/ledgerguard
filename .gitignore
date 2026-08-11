@@ -7,3 +7,6 @@ coverage
 build
 work
 outputs
+
+# TS build info
+*.tsbuildinfo
