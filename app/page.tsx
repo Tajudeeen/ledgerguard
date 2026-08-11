@@ -58,14 +58,14 @@ export default function Home() {
   return (
     <>
       <header className="sticky top-0 z-30 border-b border-[var(--color-line)] bg-[var(--color-ink)]/85 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
             <span className="flare-text text-base font-bold tracking-tight">LedgerGuard</span>
             <span className="hidden text-[11px] text-[var(--color-muted)] sm:inline">
               risk-ranked FXRP agent selection
             </span>
           </div>
-          <nav className="flex items-center gap-4 text-[11px]">
+          <nav className="flex flex-wrap items-center gap-3 text-[11px] sm:gap-4">
             <a href="#why" className="text-[var(--color-muted)] hover:text-[var(--color-text)]">
               why
             </a>
@@ -227,7 +227,7 @@ export default function Home() {
                       Live recommendation at block {view.blockNumber}. A stored receipt
                       may name a different agent — it is pinned to its own block.
                     </div>
-                    <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
+                    <div className="mt-4 grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
                       <Stat label="Post-mint CR" value={ratio(recommended.bindingLeg.projectedRatioBIPS)} />
                       <Stat
                         label="Headroom"
