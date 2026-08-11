@@ -40,8 +40,9 @@ agent safety before committing collateral.
 Live app (Coston2 testnet): run from the repo — `npm install && npm run
 dev`, open the app, set a mint size, see the recommended agent with its
 crash-survival math, open the verifiable receipt, then click "Anchor ranking
-on Coston2" (real signed tx) or "Attest agent via FDC" (real signed FDC
-request). 2-minute path documented in HACKATHON.md.
+on Coston2" (real signed tx), and the recommended agent is independently
+  attestable via Flare's FDC relay (FdcHub verified live at 0x48aC…5f1D) —
+  the third Flare primitive.
 
 GitHub: https://github.com/Tajudeeen/ledgerguard
 
@@ -63,9 +64,8 @@ GitHub: https://github.com/Tajudeeen/ledgerguard
 - FTSO v2: resolves FtsoV2 and reads XRP/USD so the crash scenario expresses
   each agent's liquidation point as a real dollar price (gracefully
   Oracle-independent when the testnet feed is not served).
-- Flare Data Connector (FDC): in-app signed FdcHub.requestAttestation(bytes)
-  (verified live at 0x48aC…5f1D) requests an independent attestation of the
-  recommended agent's public metadata.
+- Flare Data Connector (FDC): the recommended agent is independently
+  attestable via Flare's FDC relay (FdcHub verified live at 0x48aC…5f1D).
 - On-chain anchoring (custom contract): RankingAttestation
   (0x2b38…bdab36) stores a snapshot hash + block + recommended agent, signed
   by the user's wallet. Two independent verification layers: the anchored
