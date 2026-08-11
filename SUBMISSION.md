@@ -65,7 +65,9 @@ GitHub: https://github.com/Tajudeeen/ledgerguard
   each agent's liquidation point as a real dollar price (gracefully
   Oracle-independent when the testnet feed is not served).
 - Flare Data Connector (FDC): the recommended agent is independently
-  attestable via Flare's FDC relay (FdcHub verified live at 0x48aC…5f1D).
+  attestable via a copy-ready `cast send FdcHub.requestAttestation(bytes)`
+  command + explorer write-contract link (Coston2 relay is currently down;
+  no fake auto-submit). FdcHub verified live at 0x48aC…5f1D.
 - On-chain anchoring (custom contract): RankingAttestation
   (0x2b38…bdab36) stores a snapshot hash + block + recommended agent, signed
   by the user's wallet. Two independent verification layers: the anchored
@@ -86,8 +88,9 @@ Newly built/improved during Summer Signal:
   replayable agent behavior + stability score.
 - FTSO-driven breach cascade: live price axis showing where each agent
   liquidates as XRP falls.
-- FDC integration: in-app signed requestAttestation to independently attest
-  the recommended agent (third Flare primitive).
+- FDC integration: copy-ready `cast send FdcHub.requestAttestation(bytes)`
+  command + explorer write-contract link (Coston2 relay down; no fake
+  in-app auto-submit) — the third Flare primitive surfaced honestly.
 - Audit + brutal-judge hardening: Flare branding, favicon/OG metadata, a11y
   labels, corrected price-shock, execute-mint + FDC commands.
 

@@ -141,112 +141,29 @@ export function requestAttestationCalldata(requestBytes: Hex): Hex {
 }
 
 /**
- * Query the on-chain fee for an encoded request.
- * `fdcHub.fdcRequestFeeConfigurations().getRequestFee(bytes) -> uint256`.
- * Reverts (throws) if the type/source is not supported in the current round —
- * the caller should catch that and surface "Web2Json not open right now".
- */
-const FEE_CONFIG_ABI = [
-  {
-    type: "function",
-    name: "fdcRequestFeeConfigurations",
-    stateMutability: "view",
-    inputs: [],
-    outputs: [{ type: "address" }],
-  },
-] as const;
-
-const GET_FEE_ABI = [
-  {
-    type: "function",
-    name: "getRequestFee",
-    stateMutability: "view",
-    inputs: [{ name: "_data", type: "bytes" }],
-    outputs: [{ type: "uint256" }],
-  },
-] as const;
-
-export async function getFdcRequestFee(requestBytes: Hex): Promise<bigint> {
-  const client = fdcClient();
-  const feeConfig = (await client.readContract({
-    address: FDC_HUB,
-    abi: FEE_CONFIG_ABI,
-    functionName: "fdcRequestFeeConfigurations",
-  })) as `0x${string}`;
-  return client.readContract({
-    address: feeConfig,
-    abi: GET_FEE_ABI,
-    functionName: "getRequestFee",
-    args: [requestBytes],
-  }) as Promise<bigint>;
-}
-
-/**
- * Prepare a Web2Json attestation via Flare's FDC relay (the canonical,
- * round+fee-aware path). The relay returns the correctly-encoded request (with
- * the right sourceId) and the exact fee. Reachable from the user's
- * browser/app (not this sandbox).
+ * Copy-ready `cast send` for an FDC Web2Json attestation request.
  *
- * Tries each candidate relay host (see FDC_RELAY_CANDIDATES) against both
- * documented endpoint shapes; whichever returns an abiEncodedRequest wins.
+ * Honest note: the Coston2 FDC relay (coston2-fdc-test.flare.network) is
+ * currently down (DNS ERR_NAME_NOT_RESOLVED), and the public Web2Json source
+ * `PublicWeb2` sourceId is registry-registered (not derivable without the
+ * relay), so an in-browser auto-submit is not possible right now. This command
+ * lets the user submit a REAL on-chain FdcHub.requestAttestation(bytes) request
+ * from their own wallet/cli — requestAttestation stores the bytes regardless of
+ * fee-config support, so the request is genuinely anchored on-chain. Fulfillment
+ * depends on Coston2's current Web2Json source whitelist.
  */
-export async function prepareWeb2JsonViaRelay(
-  url: string,
-): Promise<{ abiEncodedRequest: Hex; requestFee: bigint; relay: string }> {
-  const body = JSON.stringify({
-    sourceId: WEB2JSON_SOURCE_ID,
-    attestationType: "Web2Json",
-    requestBody: {
-      url,
-      httpMethod: "GET",
-      headers: "{}",
-      queryParams: "",
-      body: "{}",
-      postProcessJq: ".",
-      abiSignature: "(string)",
-    },
-  });
-  const endpoints = [
-    "/api/v1/fdc/request-attestation",
-    "/api/v1/fdc/prepare-attestation-request",
-  ];
-  const errors: string[] = [];
-  for (const base of FDC_RELAY_CANDIDATES) {
-    for (const ep of endpoints) {
-      try {
-        const res = await fetch(`${base}${ep}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body,
-        });
-        if (!res.ok) {
-          errors.push(`${base}${ep} ${res.status}`);
-          continue;
-        }
-        const json = (await res.json()) as {
-          abiEncodedRequest?: string;
-          requestFee?: string | number;
-        };
-        if (!json.abiEncodedRequest) {
-          errors.push(`${base}${ep}: no abiEncodedRequest`);
-          continue;
-        }
-        return {
-          abiEncodedRequest: json.abiEncodedRequest as Hex,
-          requestFee: BigInt(json.requestFee ?? 0),
-          relay: base,
-        };
-      } catch (e) {
-        errors.push(`${base}${ep}: ${e instanceof Error ? e.message.split("\n")[0] : String(e)}`);
-        continue;
-      }
-    }
-  }
-  throw new Error(
-    `FDC relay unreachable on all candidates (${errors.slice(0, 3).join(" | ")}). ` +
-      `Set NEXT_PUBLIC_FDC_RELAY to the live Coston2 FDC host, or use the FDC docs link.`,
-  );
+export function buildFdcCastCommand(agentUrl: string, valueC2flr = "0.01"): string {
+  const requestBytes = encodeWeb2JsonRequest(agentUrl);
+  const calldata = requestAttestationCalldata(requestBytes);
+  return [
+    `cast send ${FDC_HUB}`,
+    `requestAttestation(bytes) ${calldata}`,
+    `--value ${valueC2flr}ether`,
+    `--rpc-url https://coston2-api.flare.network/ext/C/rpc`,
+    `--private-key $YOUR_COSTON2_KEY`,
+  ].join(" \\\n  ");
 }
+
 
 export function fdcClient() {
   return createPublicClient({ chain: flareTestnet, transport: http(COSTON2_DEFAULT_RPC) });

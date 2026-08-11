@@ -52,10 +52,10 @@ matches the live ranking. Anyone can re-derive it from chain state."
 ────────────────────────────────────────────────────
 [Back on the homepage, scroll to "Anchor it on Coston2". Click "Anchor
 ranking on Coston2" → wallet prompt → confirmed. Then open "Independently
-attestable via Flare FDC" and show the relay link for the agent attestation.]
+attestable via Flare FDC" and show the copy-ready cast send command + explorer link for the agent attestation.]
 Narration: "And it's not just advice — it's a tool. A real, wallet-signed
 transaction anchors the ranking hash on Coston2. The third Flare primitive,
-the Data Connector, independently attests the agent through Flare's relay."
+the Data Connector, submits a copy-ready cast send FdcHub.requestAttestation(bytes) command (Coston2 relay is down; no fake auto-submit)."
 
 ────────────────────────────────────────────────────
 ## Shot 6 — Close (1:50–2:00)

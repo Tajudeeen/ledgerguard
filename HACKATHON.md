@@ -24,9 +24,13 @@ prove the advice was right?"*
   scenario can express each agent's liquidation point as a real dollar price.
   Gracefully Oracle-independent when the testnet feed is not served.
 - **Flare Data Connector (FDC)** — the recommended agent's public page can be
-  independently attested via Flare's FDC relay, landing in `FdcHub`
-  (verified live at 0x48aC…5f1D). FDC requests are prepared by the relay
-  (round + fee), the supported submission path.
+  independently attested via Flare's FDC. Because the Coston2 FDC relay
+  (coston2-fdc-test.flare.network) is currently down (DNS ERR_NAME_NOT_RESOLVED)
+  and the public Web2Json source id is registry-managed, the app exposes a
+  **copy-ready `cast send FdcHub.requestAttestation(bytes)`** command (real
+  on-chain request from the user's own wallet) plus the explorer write-contract
+  link, rather than a fake in-app auto-submit. FdcHub is verified live at
+  0x48aC…5f1D.
   verification layers: the on-chain ranking hash *and* an FDC attestation.
 - **On-chain anchoring (custom contract)** — `RankingAttestation`
   (`0x2b38cc9b84bd3a568ccc7817b10dc98c8abdab36`, deployed Coston2) stores a
@@ -58,8 +62,9 @@ displays were understood; a static read-only ranking sketch existed.
   dated, replayable agent behavior + stability score.
 - **FTSO-driven breach cascade**: a live price axis showing where each agent
   liquidates as XRP falls.
-- FDC integration: the recommended agent is independently attestable via
-  Flare's FDC relay (FdcHub verified live) — the third Flare primitive used.
+- FDC integration: the recommended agent is independently attestable via a
+  copy-ready `cast send FdcHub.requestAttestation(bytes)` command + explorer
+  write-contract link (Coston2 relay is currently down; no fake auto-submit).
 - Audit + brutal-judge hardening pass: Flare branding, favicon/OG metadata,
   a11y labels, corrected price-shock, execute-mint + FDC commands.
 
