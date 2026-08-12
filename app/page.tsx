@@ -366,7 +366,7 @@ export default function Home() {
             </Reveal>
 
             <footer className="border-t border-[var(--color-line)] py-8 text-[11px] leading-relaxed text-[var(--color-faint)]">
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-[var(--color-line)] pb-4">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
                 <span className="font-medium text-[var(--color-text)]">© 2026 LedgerGuard</span>
                 <a
                   href="https://github.com/Tajudeeen/ledgerguard"
@@ -378,16 +378,6 @@ export default function Home() {
                 </a>
                 <span>Built for the Summer Signal hackathon · Flare Coston2</span>
               </div>
-              <p className="mt-4">
-                LedgerGuard is a decision aid, not a guarantee. Every figure is a read-only
-                estimate from Coston2 state at block <span className="num">{view.blockNumber}</span>.
-                The crash-scenario and price-shock columns are deterministic sensitivity
-                analyses on the on-chain collateral ratios — they isolate how an adverse
-                move erodes headroom and are not part of the anchored ranking. Collateral
-                ratios, oracle prices and agent availability change continuously; a ranking
-                can be stale the moment after it is produced. LedgerGuard does not execute
-                mints and does not replace AssetManager enforcement.
-              </p>
             </footer>
           </>
         )}
