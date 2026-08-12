@@ -40,6 +40,20 @@ export function shortAddress(address: string): string {
   return `${address.slice(0, 6)}…${address.slice(-4)}`;
 }
 
+/** Epoch ms -> "Aug 12, 03:15 UTC" for trail timestamps. */
+export function formatTs(ms: number): string {
+  if (!ms) return "—";
+  const d = new Date(ms);
+  return d.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "UTC",
+    hour12: false,
+  }) + " UTC";
+}
+
 export function pct(value: number, digits = 1): string {
   return `${(value * 100).toFixed(digits)}%`;
 }

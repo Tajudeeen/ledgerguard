@@ -332,6 +332,15 @@ export default function Home() {
                 <h2 className="mb-4 text-sm font-medium text-[var(--color-text)]">
                   Anchor it on Coston2
                 </h2>
+                <p className="mb-4 max-w-2xl text-xs leading-relaxed text-[var(--color-muted)]">
+                  The anchor is a timestamped receipt: a hash of the full ranking at a
+                  pinned block, written to Coston2 so anyone can replay and confirm it
+                  was computed at that block. That proves provenance and reproducibility
+                  — it does not by itself guarantee the ranking is correct, because
+                  anyone can anchor a hash. Correctness is what the open, reproducible
+                  engine plus the on-chain snapshot block let a third party verify for
+                  themselves.
+                </p>
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="flex flex-col gap-3">
                     <AnchorButton view={view} contractAddress={ATTESTATION_ADDRESS} />
@@ -368,6 +377,29 @@ export default function Home() {
                   Independently verifiable by Flare FDC
                 </h2>
                 <FdcAttest agentVault={recommended.agentVault} />
+              </section>
+            </Reveal>
+
+            <Reveal>
+              <section id="scope" className="border-t border-[var(--color-line)] py-10">
+                <h2 className="mb-3 text-sm font-medium text-[var(--color-text)]">
+                  What LedgerGuard is — and isn&apos;t
+                </h2>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="border border-[var(--color-line)] bg-[var(--color-surface)] p-4 text-xs leading-relaxed text-[var(--color-muted)]">
+                    <span className="font-medium text-[var(--color-good)]">It is </span>
+                    a read-only risk advisor: it reads live Coston2 agents, ranks them
+                    by collateral headroom, and anchors a replayable receipt on-chain.
+                    Every number traces back to chain state you can re-read yourself.
+                  </div>
+                  <div className="border border-[var(--color-line)] bg-[var(--color-surface)] p-4 text-xs leading-relaxed text-[var(--color-muted)]">
+                    <span className="font-medium text-[var(--color-warn)]">It isn&apos;t </span>
+                    a minting tool — it hands you the exact agent and parameters but
+                    does not execute the transaction, and on Coston2 today all four
+                    agents charge the same 0.25% fee, so it ranks on risk, not price.
+                    Scope, not a gap.
+                  </div>
+                </div>
               </section>
             </Reveal>
 

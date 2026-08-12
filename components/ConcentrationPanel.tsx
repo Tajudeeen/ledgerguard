@@ -59,7 +59,10 @@ export function ConcentrationPanel({ view }: { view: RankingView }) {
         <span className="num">{fxrp(totalBackedUBA, view.assetUnitUBA)}</span>. HHI is
         the sum of squared exposure shares. It measures how concentrated the
         system is — it is reported as context and is not a term in any agent&apos;s
-        safety score.
+        safety score. With only {agentCount} live agents the theoretical floor is{" "}
+        <span className="num">{minPossibleHhi.toFixed(4)}</span>, so on Coston2 a
+        &ldquo;concentrated&rdquo; reading mostly reflects how few agents exist, not
+        a quality verdict on any one of them.
       </p>
     </div>
   );
