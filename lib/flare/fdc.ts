@@ -43,7 +43,7 @@ export const COSTON2_FDC_RELAY = "https://coston2-fdc-test.flare.network";
  * Candidate Coston2 FDC relay hosts, tried in order. The `-test` subdomain
  * has been decommissioned (DNS ERR_NAME_NOT_RESOLVED as of Aug 2026), so we
  * try the current candidates too. Override with NEXT_PUBLIC_FDC_RELAY to pin
- * the exact live host from the deploy env (e.g. Render dashboard).
+ * the exact live host from the deploy env (e.g. set NEXT_PUBLIC_FDC_RELAY).
  */
 export const FDC_RELAY_CANDIDATES: string[] = [
   process.env.NEXT_PUBLIC_FDC_RELAY?.replace(/\/$/, "") ||

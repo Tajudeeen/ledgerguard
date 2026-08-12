@@ -31,9 +31,9 @@ export async function GET() {
 
     // The chain is the durable source of truth. The per-attestation ranking is
     // read back from the local receipt cache, which is ephemeral (wiped when a
-    // serverless host like Render spins the instance down). Track how many
-    // attestations lost their cached ranking so the UI can be honest about it
-    // instead of silently showing an empty trail.
+    // serverless host spins the instance down). Track how many attestations lost
+    // their cached ranking so the UI can be honest about it instead of silently
+    // showing an empty trail.
     let cachedPoints = 0;
     let missingFromCache = 0;
     const trails = await buildTrails(records, async (id) => {

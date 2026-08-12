@@ -14,7 +14,7 @@
     "test:live": "vitest run test/coston2-reader.integration.test.ts",
     "compile": "node script/compile.mjs",
     "deploy": "node script/deploy.mjs",
-    "attest": "npx tsx script/attest.ts",
+    "attest": "node script/attest.mjs",
     "trail:backfill": "npx tsx script/trail-worker.ts backfill",
     "trail:run": "npx tsx script/trail-worker.ts run"
   },

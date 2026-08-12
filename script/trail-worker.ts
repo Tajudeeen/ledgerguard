@@ -2,9 +2,9 @@
  * Trail worker: keeps the verifiable agent-risk history alive.
  *
  * Two modes:
- *   node script/trail-worker.mjs attest    # attest the standard mint now
- *   node script/trail-worker.mjs backfill  # replay recent history at intervals
- *   node script/trail-worker.mjs run       # backfill, then loop forever
+ *   npx tsx script/trail-worker.ts attest    # attest the standard mint now
+ *   npx tsx script/trail-worker.ts backfill  # replay recent history at intervals
+ *   npx tsx script/trail-worker.ts run       # backfill, then loop forever
  *
  * "Standard mint" is 500 FXRP: the same amount every time, so the trail
  * isolates agent *movement* rather than mint-size noise. Each attestation is a

@@ -89,7 +89,7 @@ It is also covered by an offline test suite — `npm run test:coverage` runs
 **64 scoring-engine tests** across the ranking, headroom, liquidation, stress,
 breach-cascade and trail modules and reports **~91% line coverage** (branch
 ~71%). The live-chain reader (`fxrp-agent-reader.ts`) is covered by the
-`onrender`-only integration test `npm run test:live`, so it is excluded from the
+`live-chain`-only integration test `npm run test:live`, so it is excluded from the
 offline coverage denominator.
 
 ## Scoring methodology
