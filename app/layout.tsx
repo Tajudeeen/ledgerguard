@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import "./globals.css";
 import { Splash } from "@/components/Splash";
+import { Analytics } from "@vercel/analytics/next";
 
 // Canonical live URL. `ledgerguard.app` is parked (not deployed), so the
 // running app is the Render deployment below. Every sharable link, OG tag and
@@ -50,6 +51,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
       <body className="overflow-x-hidden">
         <Splash />
         {children}
+        <Analytics />
       </body>
     </html>
   );
