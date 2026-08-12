@@ -90,17 +90,16 @@ export default function Home() {
             Flare · Coston2 · FAssets
           </div>
           <h1 className="mt-3 max-w-2xl text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
-            Pick an FXRP agent that survives the crash — then prove it on-chain.
+            See how far XRP can crash before each agent liquidates you — then prove it on-chain.
           </h1>
           <p className="mt-3 max-w-xl text-sm text-[var(--color-muted)]">
-            To mint FXRP you deposit collateral with an agent — pick the wrong one
-            and a small XRP drop liquidates your position. LedgerGuard shows exactly
-            how far XRP can fall before each agent liquidates you, ranks them by that
-            collateral headroom, and anchors every ranking on Coston2 so a judge can
-            replay and confirm the numbers. The part that matters is the what-if:
-            drag the price shock and watch which agents stay safe. Honest caveat —
-            on Coston2 today every agent charges the same 0.25% fee, so fee
-            can&apos;t separate them. That&apos;s exactly why we rank by risk.
+            To mint FXRP on Flare you lock collateral with an agent. If XRP drops,
+            the weakest-collateralized agents liquidate your position first.
+            LedgerGuard ranks every live Coston2 agent by exactly how deep a crash
+            each one survives, lets you drag a price shock to watch it happen, and
+            anchors the ranking on Coston2 so a judge can replay and confirm the
+            numbers. (On Coston2 today all agents charge the same 0.25% fee — so
+            fee can&apos;t pick a winner. That&apos;s why we rank by risk.)
           </p>
 
           <div className="mt-5 flex flex-wrap gap-2 text-[11px]">
@@ -268,6 +267,11 @@ export default function Home() {
                       amountFxrp={Number(amount) || 0}
                       assetManager={view.assetManager}
                     />
+                    {view.comparison?.headline && (
+                      <p className="mt-4 border-l-2 border-[var(--color-accent)]/60 bg-[var(--color-surface)]/60 pl-3 text-xs leading-relaxed text-[var(--color-text)]">
+                        {view.comparison.headline}
+                      </p>
+                    )}
                   </div>
                   <div className="border border-[var(--color-line)] bg-[var(--color-surface)] p-6">
                     <div className="text-[11px] uppercase tracking-wider text-[var(--color-faint)]">
@@ -284,17 +288,7 @@ export default function Home() {
               </section>
             </Reveal>
 
-            {/* WHY */}
-            <Reveal>
-              <section id="why" className="border-t border-[var(--color-line)] py-12">
-                <h2 className="mb-4 text-sm font-medium text-[var(--color-text)]">
-                  Why this agent — and how it compares
-                </h2>
-                <AgentComparison view={view} />
-              </section>
-            </Reveal>
-
-            {/* SCENARIO */}
+            {/* SCENARIO (leads — concrete proof point right after the recommendation) */}
             <Reveal>
               <section id="scenario" className="border-t border-[var(--color-line)] py-12">
                 <h2 className="mb-4 text-sm font-medium text-[var(--color-text)]">
@@ -307,7 +301,17 @@ export default function Home() {
               </section>
             </Reveal>
 
-            {/* LEADERBOARD */}
+            {/* WHY */}
+            <Reveal>
+              <section id="why" className="border-t border-[var(--color-line)] py-12">
+                <h2 className="mb-4 text-sm font-medium text-[var(--color-text)]">
+                  Why this agent — and how it compares
+                </h2>
+                <AgentComparison view={view} />
+              </section>
+            </Reveal>
+
+            {/* LEADERBOARD (follows — dense table, now after the payoff) */}
             <Reveal>
               <section id="leaderboard" className="border-t border-[var(--color-line)] py-12">
                 <div className="mb-3 flex items-baseline justify-between">

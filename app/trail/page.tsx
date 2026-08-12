@@ -21,20 +21,29 @@ export default function TrailPage() {
   const [data, setData] = useState<TrailResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [slow, setSlow] = useState(false);
 
   useEffect(() => {
+    const slowTimer = setTimeout(() => setSlow(true), 4000);
+    const ctrl = new AbortController();
     (async () => {
       try {
-        const res = await fetch("/api/trail", { cache: "no-store" });
+        const res = await fetch("/api/trail", { cache: "no-store", signal: ctrl.signal });
         const body = await res.json();
         if (!res.ok) throw new Error(body.error ?? "failed to load trail");
         setData(body);
       } catch (e) {
+        if ((e as Error).name === "AbortError") return;
         setError(e instanceof Error ? e.message : "failed to load trail");
       } finally {
+        clearTimeout(slowTimer);
         setLoading(false);
       }
     })();
+    return () => {
+      clearTimeout(slowTimer);
+      ctrl.abort();
+    };
   }, []);
 
   return (
@@ -62,7 +71,11 @@ export default function TrailPage() {
         )}
       </header>
 
-      {loading && <div className="mt-8 text-sm text-[var(--color-muted)]">Reading trail…</div>}
+      {loading && (
+        <div className="mt-8 text-sm text-[var(--color-muted)]">
+          Reading trail…{slow && " (the demo host may be waking from sleep — this usually resolves in a few seconds)"}
+        </div>
+      )}
       {error && (
         <div className="mt-8 border border-[var(--color-bad)]/40 bg-[var(--color-bad)]/[0.06] p-4 text-sm text-[var(--color-bad)]">
           {error}
