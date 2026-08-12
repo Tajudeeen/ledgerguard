@@ -4,7 +4,10 @@ import type { ReactNode } from "react";
 import "./globals.css";
 import { Splash } from "@/components/Splash";
 
-const SITE_URL = "https://ledgerguard.app";
+// Canonical live URL. `ledgerguard.app` is parked (not deployed), so the
+// running app is the Render deployment below. Every sharable link, OG tag and
+// canonical reference must point here and nowhere else.
+const SITE_URL = "https://ledgerguard-rhbe.onrender.com";
 const TITLE = "LedgerGuard — risk-ranked FXRP agent selection";
 const DESCRIPTION =
   "Ranks live FXRP minting agents on Flare Coston2 by projected collateral headroom, shows how far XRP can fall before each agent liquidates, and anchors the ranking on-chain so anyone can verify it later.";

@@ -11,6 +11,9 @@ type TrailResponse = {
   firstBlock: number | null;
   latestBlock: number | null;
   agentsTracked: number;
+  cachedPoints: number;
+  missingFromCache: number;
+  cacheGap: boolean;
   trails: AgentTrail[];
 };
 
@@ -63,6 +66,15 @@ export default function TrailPage() {
       {error && (
         <div className="mt-8 border border-[var(--color-bad)]/40 bg-[var(--color-bad)]/[0.06] p-4 text-sm text-[var(--color-bad)]">
           {error}
+        </div>
+      )}
+      {data?.cacheGap && (
+        <div className="mt-8 border border-[var(--color-warn)]/40 bg-[var(--color-warn)]/[0.06] p-4 text-sm text-[var(--color-warn)]">
+          {data.attestationCount} attestation{data.attestationCount === 1 ? "" : "s"} are confirmed on
+          Coston2, but their cached rankings were lost when the host restarted. The on-chain record is
+          intact and every point is still independently re-verifiable via{" "}
+          <span className="num">script/reproduce.ts</span>. The detailed trail repopulates as the trail
+          worker re-attests. This is a hosting artifact, not a gap in the proof.
         </div>
       )}
       {data && (

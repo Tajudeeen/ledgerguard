@@ -90,15 +90,17 @@ export default function Home() {
             Flare · Coston2 · FAssets
           </div>
           <h1 className="mt-3 max-w-2xl text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
-            Pick an FXRP minting agent you can actually trust — and prove it later.
+            Pick an FXRP agent that survives the crash — then prove it on-chain.
           </h1>
           <p className="mt-3 max-w-xl text-sm text-[var(--color-muted)]">
             To mint FXRP you deposit collateral with an agent — pick the wrong one
-            and a small XRP drop liquidates your position. Every agent on Coston2
-            charges the same 0.25% fee, so fee is a useless signal. LedgerGuard
-            ranks by collateral risk instead, tracks each agent&apos;s behavior in a
-            verifiable on-chain trail, and anchors every ranking so anyone can
-            replay and confirm it. Then it hands you the exact mint parameters.
+            and a small XRP drop liquidates your position. LedgerGuard shows exactly
+            how far XRP can fall before each agent liquidates you, ranks them by that
+            collateral headroom, and anchors every ranking on Coston2 so a judge can
+            replay and confirm the numbers. The part that matters is the what-if:
+            drag the price shock and watch which agents stay safe. Honest caveat —
+            on Coston2 today every agent charges the same 0.25% fee, so fee
+            can&apos;t separate them. That&apos;s exactly why we rank by risk.
           </p>
 
           <div className="mt-5 flex flex-wrap gap-2 text-[11px]">

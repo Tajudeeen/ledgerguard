@@ -85,6 +85,13 @@ receipt at /verdict/[id]                               app/verdict
 The scoring engine is a pure function with no network, no clock and no
 randomness. That is what makes the anchored hash reproducible.
 
+It is also covered by an offline test suite — `npm run test:coverage` runs
+**64 scoring-engine tests** across the ranking, headroom, liquidation, stress,
+breach-cascade and trail modules and reports **~91% line coverage** (branch
+~71%). The live-chain reader (`fxrp-agent-reader.ts`) is covered by the
+`onrender`-only integration test `npm run test:live`, so it is excluded from the
+offline coverage denominator.
+
 ## Scoring methodology
 
 Nothing here is a black box. Every number below is visible in the UI.
@@ -300,7 +307,8 @@ Coston2. A splash introduces the name and motto.
 npm install
 npm run build && npm start        # http://localhost:3000
 
-npm test                          # scoring engine unit tests
+npm test                          # 64 scoring-engine unit tests
+npm run test:coverage             # same suite + v8 coverage report (~91% lines)
 npm run test:live                 # live Coston2 integration test
 npm run typecheck
 ```

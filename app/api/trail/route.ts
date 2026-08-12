@@ -29,7 +29,19 @@ export async function GET() {
       ATTESTATION_ABI,
     );
 
-    const trails = await buildTrails(records, (id) => loadRankingView(String(id)));
+    // The chain is the durable source of truth. The per-attestation ranking is
+    // read back from the local receipt cache, which is ephemeral (wiped when a
+    // serverless host like Render spins the instance down). Track how many
+    // attestations lost their cached ranking so the UI can be honest about it
+    // instead of silently showing an empty trail.
+    let cachedPoints = 0;
+    let missingFromCache = 0;
+    const trails = await buildTrails(records, async (id) => {
+      const view = await loadRankingView(String(id));
+      if (view) cachedPoints += 1;
+      else missingFromCache += 1;
+      return view;
+    });
 
     return NextResponse.json(
       {
@@ -38,6 +50,9 @@ export async function GET() {
         firstBlock: records[0]?.snapshotBlock ?? null,
         latestBlock: records[records.length - 1]?.snapshotBlock ?? null,
         agentsTracked: trails.length,
+        cachedPoints,
+        missingFromCache,
+        cacheGap: records.length > 0 && missingFromCache === records.length,
         trails,
         records,
       },

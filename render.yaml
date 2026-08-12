@@ -1,0 +1,56 @@
+# LedgerGuard — Render deployment manifest.
+#
+# Two services:
+#   1. web   — the Next.js app (the demo a judge opens).
+#   2. worker— a long-lived background process that re-attests the standard
+#              500 FXRP ranking every 5 minutes so /trail stays populated.
+#
+# WHY A SEPARATE WORKER: on Render's free web tier the service spins down after
+# ~15 min of inactivity and its ephemeral disk (incl. the .receipts cache) is
+# wiped on restart. The 5-minute attest loop keeps ITSELF awake, but if the web
+# service alone is free-tier it will still cold-start / lose its cache between
+# judge visits. Run the worker as its own always-on background service (free
+# background workers do NOT sleep on Render) so attestations keep landing on
+# Coston2 regardless of web-service sleep. The on-chain attestations are the
+# durable record; the worker just keeps adding to them.
+#
+# Set these in the Render dashboard (do NOT commit secrets):
+#   DEPLOYER_PRIVATE_KEY       — funder wallet that pays the ~0-gas Coston2 txs
+#   NEXT_PUBLIC_ATTESTATION_ADDRESS — deployed RankingAttestation (0x2b38…bdab36)
+#   COSTON2_RPC_URL            — optional override
+
+services:
+  - type: web
+    name: ledgerguard
+    runtime: node
+    plan: free
+    region: oregon
+    branch: master
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_ATTESTATION_ADDRESS
+        sync: false
+      - key: COSTON2_RPC_URL
+        sync: false
+
+  - type: worker
+    name: ledgerguard-trail-worker
+    runtime: node
+    plan: free
+    region: oregon
+    branch: master
+    buildCommand: npm install
+    startCommand: npm run trail:run
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DEPLOYER_PRIVATE_KEY
+        sync: false
+      - key: NEXT_PUBLIC_ATTESTATION_ADDRESS
+        sync: false
+      - key: COSTON2_RPC_URL
+        sync: false
