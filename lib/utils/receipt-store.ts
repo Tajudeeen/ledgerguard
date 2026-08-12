@@ -17,7 +17,13 @@ const DIR = join(process.cwd(), ".receipts");
 export type StoredReceipt = {
   id: string;
   txHash: string;
-  view: RankingView;
+  /**
+   * The full ranking at anchor time. May be null when a receipt was repaired
+   * from the on-chain record alone (its detailed agent rows are not recoverable
+   * from the contract). The verdict page still renders the verifiable on-chain
+   * proof and clearly states the agent table is not cached.
+   */
+  view: RankingView | null;
   storedAt: number;
 };
 
@@ -37,6 +43,17 @@ export async function loadReceipt(id: string): Promise<StoredReceipt | null> {
     return JSON.parse(await readFile(join(DIR, `${id}.json`), "utf8")) as StoredReceipt;
   } catch {
     return null;
+  }
+}
+
+/** Whether a receipt cache file exists for this id (cheap existence check). */
+export async function existsReceipt(id: string): Promise<boolean> {
+  if (!isSafeId(id)) return false;
+  try {
+    await readFile(join(DIR, `${id}.json`), "utf8");
+    return true;
+  } catch {
+    return false;
   }
 }
 

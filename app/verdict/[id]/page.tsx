@@ -1,14 +1,20 @@
 import { notFound } from "next/navigation";
-import { createPublicClient, http } from "viem";
-import { flareTestnet } from "viem/chains";
 
 import { AgentTable } from "@/components/AgentTable";
-import { ATTESTATION_ABI, ATTESTATION_ADDRESS } from "@/lib/attestation/abi";
+import { ATTESTATION_ADDRESS } from "@/lib/attestation/abi";
+import { readAttestationRecordById, type AttestationRecord } from "@/lib/attestation/record";
 import { COSTON2_EXPLORER } from "@/lib/flare/coston2";
-import { loadReceipt } from "@/lib/utils/receipt-store";
+import { loadReceipt, type StoredReceipt } from "@/lib/utils/receipt-store";
+import type { RankingView } from "@/lib/utils/view";
 import { shortAddress } from "@/lib/utils/format";
 
 export const dynamic = "force-dynamic";
+
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+// Canonical FXRP AssetManager on Coston2 (resolved at runtime via the Flare
+// Contract Registry on the live homepage). Used only for the explorer link
+// when the local ranking cache has been wiped.
+const FXRP_ASSET_MANAGER = "0xc1Ca88b937d0b528842F95d5731ffB586f4fbDFA";
 
 type Verification =
   | { state: "unavailable"; note: string }
@@ -23,42 +29,62 @@ type Verification =
     };
 
 /**
- * The receipt reads the attestation back from Coston2 and compares it with the
- * cached ranking. The verdict shown is the result of that comparison, so the
- * page is evidence rather than a claim.
+ * The receipt always reads the attestation back from Coston2 (the durable,
+ * cache-independent source of truth) and renders it. The detailed per-agent
+ * ranking is a convenience held in the local receipt cache; when that cache
+ * is missing (e.g. after a host restart) we still show the verifiable
+ * on-chain record and say plainly that the agent table is not cached — we
+ * never 404 an attestation that provably exists on-chain.
  */
-async function verify(id: string, cachedHash: string): Promise<Verification> {
+async function verify(
+  record: AttestationRecord,
+  cachedHash: string | null,
+): Promise<Verification> {
   if (!ATTESTATION_ADDRESS) {
     return { state: "unavailable", note: "No attestation contract is configured." };
   }
 
-  try {
-    const client = createPublicClient({ chain: flareTestnet, transport: http() });
-    const record = await client.readContract({
-      address: ATTESTATION_ADDRESS as `0x${string}`,
-      abi: ATTESTATION_ABI,
-      functionName: "get",
-      args: [BigInt(id)],
-    });
-
+  if (cachedHash) {
     return {
       state:
         record.snapshotHash.toLowerCase() === cachedHash.toLowerCase()
           ? "match"
           : "mismatch",
       onChainHash: record.snapshotHash,
-      snapshotBlock: record.snapshotBlock.toString(),
-      attestedAt: new Date(Number(record.attestedAt) * 1000).toISOString(),
-      agentCount: Number(record.agentCount),
+      snapshotBlock: String(record.snapshotBlock),
+      attestedAt: new Date(record.attestedAtMs).toISOString(),
+      agentCount: record.agentCount,
       submitter: record.submitter,
       recommendedAgent: record.recommendedAgent,
     };
-  } catch {
-    return {
-      state: "unavailable",
-      note: "Could not read this attestation from Coston2 right now.",
-    };
   }
+
+  return {
+    state: "unavailable",
+    note:
+      "The detailed ranking for this attestation was not found in the local " +
+      "cache (it is rebuilt as the worker re-attests). The on-chain record " +
+      "below is the durable, verifiable proof and is complete on its own.",
+  };
+}
+
+function buildHeader(id: string, rec: AttestationRecord, view: RankingView | null) {
+  return {
+    id,
+    snapshotHash: rec.snapshotHash,
+    snapshotBlock: rec.snapshotBlock,
+    chainId: view?.chainId ?? 114,
+    assetManager: view?.assetManager ?? FXRP_ASSET_MANAGER,
+    mintAmountUBA: rec.mintAmountUBA,
+    mintAmountFxrp:
+      view?.mintAmountFxrp ?? (Number(rec.mintAmountUBA) / 1e6).toString(),
+    assetUnitUBA: view?.assetUnitUBA ?? "1000000",
+    attestedAtMs: rec.attestedAtMs,
+    agentCount: rec.agentCount,
+    submitter: rec.submitter,
+    recommendedAgent: rec.recommendedAgent,
+    cacheHit: view !== null,
+  };
 }
 
 export default async function VerdictPage({
@@ -67,11 +93,21 @@ export default async function VerdictPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const receipt = await loadReceipt(id);
-  if (!receipt) notFound();
+  if (!/^[0-9]{1,20}$/.test(id)) notFound();
 
-  const { view, txHash } = receipt;
-  const verification = await verify(id, view.snapshotHash);
+  const receipt: StoredReceipt | null = await loadReceipt(id);
+  const record = await readAttestationRecordById(Number(id));
+  if (!record) notFound();
+
+  const view = receipt?.view ?? null;
+  const header = buildHeader(id, record, view);
+  const txHash = receipt?.txHash ?? null;
+  const verification = await verify(record, view?.snapshotHash ?? null);
+
+  const recommendedLabel =
+    header.recommendedAgent === ZERO_ADDRESS
+      ? "none eligible"
+      : header.recommendedAgent;
 
   return (
     <main className="mx-auto min-h-screen max-w-5xl px-6 py-10">
@@ -88,9 +124,18 @@ export default async function VerdictPage({
           </a>
         </div>
         <div className="num mt-1 text-[11px] text-[var(--color-faint)]">
-          attestation #{id} · flare coston2 · chain {view.chainId}
+          attestation #{id} · flare coston2 · chain {header.chainId}
         </div>
       </header>
+
+      {!header.cacheHit && (
+        <div className="mt-6 border border-[var(--color-warn)]/40 bg-[var(--color-warn)]/[0.06] p-4 text-sm text-[var(--color-warn)]">
+          This attestation exists on Coston2 but its detailed per-agent ranking
+          was not in the local cache (the cache is wiped when the demo host
+          restarts). The verifiable on-chain record below is complete — the
+          agent table returns as the worker re-attests.
+        </div>
+      )}
 
       <section className="mt-6">
         <VerificationBanner verification={verification} />
@@ -99,26 +144,36 @@ export default async function VerdictPage({
       <section className="mt-6 grid gap-4 md:grid-cols-2">
         <Panel title="Ranking">
           <Field label="asset" value="FXRP" />
-          <Field label="mint amount" value={`${view.mintAmountFxrp} FXRP`} />
-          <Field label="agents analyzed" value={String(view.agentsAnalyzed)} />
-          <Field label="eligible" value={String(view.eligibleCount)} />
+          <Field label="mint amount" value={`${header.mintAmountFxrp} FXRP`} />
           <Field
-            label="recommended"
-            value={view.recommendedVault ?? "none eligible"}
-            wrap
+            label="agents analyzed"
+            value={view ? String(view.agentsAnalyzed) : String(header.agentCount)}
           />
+          <Field
+            label="eligible"
+            value={view ? String(view.eligibleCount) : "— (not cached)"}
+          />
+          <Field label="recommended" value={recommendedLabel} wrap />
         </Panel>
 
         <Panel title="Proof">
-          <Field label="snapshot block" value={view.blockNumber} />
-          <Field label="format" value={view.snapshotVersion} />
-          <Field label="snapshot hash" value={view.snapshotHash} wrap />
-          <Field
-            label="attestation tx"
-            value={txHash}
-            wrap
-            href={`${COSTON2_EXPLORER}/tx/${txHash}`}
-          />
+          <Field label="snapshot block" value={String(header.snapshotBlock)} />
+          <Field label="format" value={view?.snapshotVersion ?? "LEDGERGUARD-V1"} />
+          <Field label="snapshot hash" value={header.snapshotHash} wrap />
+          {txHash ? (
+            <Field
+              label="attestation tx"
+              value={txHash}
+              wrap
+              href={`${COSTON2_EXPLORER}/tx/${txHash}`}
+            />
+          ) : (
+            <Field
+              label="attestation tx"
+              value="not in local cache (recover from RankingAttested event)"
+              wrap
+            />
+          )}
           {ATTESTATION_ADDRESS && (
             <Field
               label="contract"
@@ -129,19 +184,32 @@ export default async function VerdictPage({
           )}
           <Field
             label="asset manager"
-            value={view.assetManager}
+            value={header.assetManager}
             wrap
-            href={`${COSTON2_EXPLORER}/address/${view.assetManager}`}
+            href={`${COSTON2_EXPLORER}/address/${header.assetManager}`}
           />
         </Panel>
       </section>
 
-      <section className="mt-8">
-        <h2 className="mb-3 text-[11px] uppercase tracking-wider text-[var(--color-faint)]">
-          The ranking that was anchored
-        </h2>
-        <AgentTable view={view} />
-      </section>
+      {view ? (
+        <section className="mt-8">
+          <h2 className="mb-3 text-[11px] uppercase tracking-wider text-[var(--color-faint)]">
+            The ranking that was anchored
+          </h2>
+          <AgentTable view={view} />
+        </section>
+      ) : (
+        <section className="mt-8 border border-[var(--color-line)] bg-[var(--color-surface)] p-5 text-sm text-[var(--color-muted)]">
+          The per-agent ranking for this attestation is not in the local cache,
+          so the detailed table is not shown here. You can still confirm the
+          anchored hash, block, mint amount and recommended agent above against
+          the contract, and the{" "}
+          <a href="/trail" className="text-[var(--color-accent)] hover:underline">
+            agent trail
+          </a>{" "}
+          surfaces the same on-chain ledger.
+        </section>
+      )}
 
       <section className="mt-8 border border-[var(--color-line)] bg-[var(--color-surface)] p-5">
         <div className="text-[11px] uppercase tracking-wider text-[var(--color-faint)]">
@@ -151,12 +219,12 @@ export default async function VerdictPage({
           <li>
             Read <span className="num">getAvailableAgentsDetailedList</span> and{" "}
             <span className="num">getAgentInfo</span> from AssetManagerFXRP at block{" "}
-            <span className="num text-[var(--color-text)]">{view.blockNumber}</span> on an
+            <span className="num text-[var(--color-text)]">{header.snapshotBlock}</span> on an
             archive node.
           </li>
           <li>
             Run <span className="num">rankAgents()</span> from this repository with mint
-            amount <span className="num">{view.mintAmountUBA}</span> UBA.
+            amount <span className="num">{header.mintAmountUBA}</span> UBA.
           </li>
           <li>
             Compute <span className="num">buildSnapshotCommitment()</span> and compare the
