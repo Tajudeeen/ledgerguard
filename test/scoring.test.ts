@@ -70,6 +70,16 @@ function state(snapshots: AgentSnapshot[]): FxrpAgentSnapshotResult {
     vaultCollateralTypes: [VAULT_TYPE],
     poolCollateralType: POOL_TYPE,
     snapshots,
+    directMinting: {
+      hourlyLimitUBA: 0n,
+      dailyLimitUBA: 0n,
+      hourlyMintedUBA: 0n,
+      dailyMintedUBA: 0n,
+      largeMintingThresholdUBA: 0n,
+      largeMintingDelaySeconds: 0n,
+      unblockUntilTimestamp: 0n,
+      executorFeeBIPS: 0n,
+    },
   };
 }
 

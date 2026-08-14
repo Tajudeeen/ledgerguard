@@ -11,6 +11,7 @@ import { RiskScore } from "@/components/RiskScore";
 import { ScenarioPanel } from "@/components/ScenarioPanel";
 import { BreachCascade } from "@/components/BreachCascade";
 import { CoreVaultMint } from "@/components/MintAction";
+import { MintLimiter } from "@/components/MintLimiter";
 import { FdcAttest } from "@/components/FdcAttest";
 import { RedemptionAgent } from "@/components/RedemptionAgent";
 import { ATTESTATION_ADDRESS } from "@/lib/attestation/abi";
@@ -97,15 +98,15 @@ export default function Home() {
             Minting FXRP is now a direct payment to the Flare <span className="text-[var(--color-text)]">Core Vault</span> — you
             don&apos;t pick an agent to mint. Agents instead post the collateral that
             backs the FXRP already in circulation, and they are the ones you deal with
-            to <span className="text-[var(--color-text)]">redeem</span> back to XRP. LedgerGuard ranks every live Coston2
-            agent by exactly how deep a crash its collateral survives, so you can see
-            which agents remain safe to redeem with and how concentrated the backing
-            behind your FXRP is — then anchors that view on Coston2 so anyone can replay it.
+            to <span className="text-[var(--color-text)]">redeem</span> back to XRP. LedgerGuard is a live <span className="text-[var(--color-text)]">risk radar</span>
+            for that backing: it ranks every live Coston2 agent by exactly how deep a
+            crash its collateral survives, shows the live Core Vault mint throttle,
+            and anchors the whole view on Coston2 so anyone can replay and verify it.
           </p>
 
           <div className="mt-5 flex flex-wrap gap-2 text-[11px]">
             {[
-              ["Read", "every live Coston2 agent + its collateral"],
+              ["Read", "live Coston2 agents + Core Vault throttle"],
               ["Rank", "by crash survival, not fee"],
               ["Anchor", "the view on-chain so it's verifiable"],
             ].map(([step, desc], i) => (
@@ -263,6 +264,15 @@ export default function Home() {
                         />
                         <Stat label="Capacity" value={fxrp(recommended.availableCapacityUBA, view.assetUnitUBA)} />
                       </div>
+                      <p className="mt-3 text-[11px] leading-relaxed text-[var(--color-faint)]">
+                        The FXRP you would mint is backed by{" "}
+                        <span className="num text-[var(--color-text)]">{view.concentration.agentCount} live agents</span>{" "}
+                        holding{" "}
+                        <span className="num text-[var(--color-text)]">
+                          {fxrp(view.concentration.totalBackedUBA, view.assetUnitUBA)} FXRP
+                        </span>{" "}
+                        of total collateral backing. Below: the safest agent to redeem with.
+                      </p>
                       <RedemptionAgent
                         recommendedVault={recommended.agentVault}
                         amountFxrp={Number(amount) || 0}
@@ -293,6 +303,13 @@ export default function Home() {
             <Reveal>
               <CoreVaultMint />
             </Reveal>
+
+            {/* LIVE CORE VAULT MINT THROTTLE — proves we read the new surface */}
+            {view.directMinting && (
+              <Reveal>
+                <MintLimiter limiter={view.directMinting} />
+              </Reveal>
+            )}
 
             {/* SCENARIO (leads — concrete proof point right after the recommendation) */}
             <Reveal>

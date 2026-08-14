@@ -1,6 +1,7 @@
 import type {
   AgentSnapshot,
   CollateralTypeInfo,
+  DirectMintingLimiter,
   FxrpAgentSnapshotResult,
 } from "../types/agent";
 import { computeConcentration, type ConcentrationReport } from "./concentration";
@@ -147,6 +148,8 @@ export type Ranking = {
   feeSpreadExists: boolean;
   minFeeBIPS: bigint;
   maxFeeBIPS: bigint;
+  /** Live Core Vault direct-minting rate-limiter state at the snapshot block. */
+  directMinting: DirectMintingLimiter;
 };
 
 function clamp01(value: number): number {
@@ -405,5 +408,6 @@ export function rankAgents(
     feeSpreadExists: eligible.some((a) => a.feeBIPS !== eligible[0]?.feeBIPS),
     minFeeBIPS: feeSpread.min,
     maxFeeBIPS: feeSpread.max,
+    directMinting: state.directMinting,
   };
 }

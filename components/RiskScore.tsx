@@ -60,10 +60,11 @@ export function RiskScore({ agent }: { agent: AgentView }) {
         <span className="num text-lg text-[var(--color-accent)]">{agent.score.toFixed(4)}</span>
       </div>
       <p className="mt-2 text-[11px] leading-relaxed text-[var(--color-faint)]">
-        Components saturate at 1.0. Fee is weighted below every safety term by
-        design, so a cheaper agent can never outrank a materially safer one.
-        The ranking reflects collateral backing and crash survival — not the
-        mint, which is a direct Core Vault payment.
+        Components saturate at 1.0. Fee is shown for completeness but is
+        weighted below every safety term by design, and is constant across all
+        Coston2 agents today — so it cannot change the ranking. The score
+        reflects collateral backing and crash survival; the FXRP mint itself is
+        a direct Core Vault payment, not an agent choice.
       </p>
     </div>
   );

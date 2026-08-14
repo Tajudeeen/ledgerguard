@@ -67,6 +67,13 @@ Everything LedgerGuard reads is Flare-native and resolved at runtime:
 | Agent detail | `IAssetManager.getAgentInfo(agentVault)` |
 | Liquidation thresholds | `IAssetManager.getCollateralTypes()` |
 | Lot sizing | `IAssetManager.getSettings()` |
+| Core Vault mint throttle | `getDirectMintingHourlyLimitUBA` / `DailyLimitUBA` / `HourlyLimiterState` / `DailyLimiterState` / `LargeMintingThresholdUBA` / `LargeMintingDelaySeconds` / `DirectMintingsUnblockUntilTimestamp` / `DirectMintingExecutorFeeUBA` |
+
+The mint throttle block is the actual constraint on the direct Core Vault mint —
+hourly and daily caps plus a "large minting" delay — and almost no dashboard
+visualises it. LedgerGuard reads it at the same pinned block as the agent view
+and shows it live on the home page, proving it reads the *current* FAssets
+surface rather than legacy agent-mint state.
 | Anchoring | `RankingAttestation.sol`, deployed on Coston2 |
 
 Interfaces come from `@flarenetwork/flare-wagmi-periphery-package` (the

@@ -12,6 +12,7 @@ import {
 import type {
   AgentSnapshot,
   CollateralTypeInfo,
+  DirectMintingLimiter,
   FxrpAgentSnapshotResult,
 } from "../types/agent";
 
@@ -111,11 +112,67 @@ export function normalizeAgentSnapshot(
 }
 
 /**
+ * Reads the live Core Vault direct-minting rate limiter from the AssetManager.
+ *
+ * Under the current FAssets model the mint is a direct XRPL payment to the Core
+ * Vault finalised by an executor; the AssetManager throttles direct minting with
+ * hourly and daily windows plus a "large minting" delay. These getters take no
+ * arguments and are pinned to `blockNumber` like every other read, so the
+ * limiter snapshot is reproducible from the same block as the agent view.
+ */
+async function readDirectMintingLimiter(
+  assetManager: Address,
+  blockNumber: bigint,
+): Promise<DirectMintingLimiter> {
+  const scalar = (fn: string): Promise<bigint> =>
+    coston2Client.readContract({
+      address: assetManager,
+      abi: iAssetManagerAbi,
+      functionName: fn as "getDirectMintingHourlyLimitUBA",
+      blockNumber,
+    }) as Promise<bigint>;
+
+  const [hourly, daily, hourlyState, dailyState, largeThresh, largeDelay, unblock, execFee] =
+    await Promise.all([
+      scalar("getDirectMintingHourlyLimitUBA"),
+      scalar("getDirectMintingDailyLimitUBA"),
+      coston2Client.readContract({
+        address: assetManager,
+        abi: iAssetManagerAbi,
+        functionName: "getDirectMintingHourlyLimiterState",
+        blockNumber,
+      }) as Promise<readonly [bigint, bigint]>,
+      coston2Client.readContract({
+        address: assetManager,
+        abi: iAssetManagerAbi,
+        functionName: "getDirectMintingDailyLimiterState",
+        blockNumber,
+      }) as Promise<readonly [bigint, bigint]>,
+      scalar("getDirectMintingLargeMintingThresholdUBA"),
+      scalar("getDirectMintingLargeMintingDelaySeconds"),
+      scalar("getDirectMintingsUnblockUntilTimestamp"),
+      scalar("getDirectMintingExecutorFeeUBA"),
+    ]);
+
+  return {
+    hourlyLimitUBA: hourly,
+    dailyLimitUBA: daily,
+    hourlyMintedUBA: hourlyState[1],
+    dailyMintedUBA: dailyState[1],
+    largeMintingThresholdUBA: largeThresh,
+    largeMintingDelaySeconds: largeDelay,
+    unblockUntilTimestamp: unblock,
+    executorFeeBIPS: execFee,
+  };
+}
+
+/**
  * Live Coston2 read path:
  *   Contract Registry -> AssetManagerFXRP -> getSettings
  *                                         -> getCollateralTypes
  *                                         -> getAvailableAgentsDetailedList
  *                                         -> getAgentInfo (per agent)
+ *                                         -> getDirectMinting* (Core Vault limiter)
  *
  * Every call is pinned to a single block number so the resulting snapshot is
  * internally consistent and independently reproducible by a third party.
@@ -140,7 +197,7 @@ export async function readFxrpAgentSnapshots(
     ASSET_MANAGER_REGISTRY_KEY,
   );
 
-  const [settings, collateralTypes, firstPage] = await Promise.all([
+  const [settings, collateralTypes, firstPage, limiter] = await Promise.all([
     coston2Client.readContract({
       address: assetManager,
       abi: iAssetManagerAbi,
@@ -160,6 +217,7 @@ export async function readFxrpAgentSnapshots(
       args: [0n, PAGE_SIZE],
       blockNumber,
     }),
+    readDirectMintingLimiter(assetManager, blockNumber),
   ]);
 
   const allTypes = (collateralTypes as readonly RawCollateralType[]).map(
@@ -227,5 +285,6 @@ export async function readFxrpAgentSnapshots(
     vaultCollateralTypes,
     poolCollateralType,
     snapshots,
+    directMinting: limiter,
   };
 }

@@ -83,6 +83,17 @@ function view(recommended: string, agents: ReturnType<typeof agent>[]): RankingV
       extraFeeUBA: "0",
     },
     concentration: { hhi: 0.25, minPossibleHhi: 0.25, totalBackedUBA: "1", agentCount: 4 },
+    directMinting: {
+      hourlyLimitUBA: "0",
+      dailyLimitUBA: "0",
+      hourlyMintedUBA: "0",
+      dailyMintedUBA: "0",
+      largeMintingThresholdUBA: "0",
+      largeMintingDelaySeconds: "0",
+      unblockUntilTimestamp: "0",
+      executorFeeBIPS: "0",
+      assetUnitUBA: "1000000",
+    },
     snapshotHash: "0xhash",
     snapshotVersion: "LEDGERGUARD-V1",
   };

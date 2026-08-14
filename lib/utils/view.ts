@@ -53,6 +53,19 @@ export type OracleView = {
   fresh: boolean;
 };
 
+/** Live Core Vault direct-minting rate-limiter state (all UBA/BIPS as strings). */
+export type DirectMintingView = {
+  hourlyLimitUBA: string;
+  dailyLimitUBA: string;
+  hourlyMintedUBA: string;
+  dailyMintedUBA: string;
+  largeMintingThresholdUBA: string;
+  largeMintingDelaySeconds: string;
+  unblockUntilTimestamp: string;
+  executorFeeBIPS: string;
+  assetUnitUBA: string;
+};
+
 export type RankingView = {
   chainId: number;
   assetManager: string;
@@ -87,6 +100,9 @@ export type RankingView = {
     totalBackedUBA: string;
     agentCount: number;
   };
+
+  /** Live Core Vault direct-minting rate-limiter state at the snapshot block. */
+  directMinting: DirectMintingView;
 
   snapshotHash: string;
   snapshotVersion: string;
@@ -168,6 +184,18 @@ export function toRankingView(ranking: Ranking): RankingView {
       minPossibleHhi: Number(ranking.concentration.minPossibleHhiScaled) / 1e18,
       totalBackedUBA: ranking.concentration.totalBackedUBA.toString(),
       agentCount: ranking.concentration.agentCount,
+    },
+
+    directMinting: {
+      hourlyLimitUBA: ranking.directMinting.hourlyLimitUBA.toString(),
+      dailyLimitUBA: ranking.directMinting.dailyLimitUBA.toString(),
+      hourlyMintedUBA: ranking.directMinting.hourlyMintedUBA.toString(),
+      dailyMintedUBA: ranking.directMinting.dailyMintedUBA.toString(),
+      largeMintingThresholdUBA: ranking.directMinting.largeMintingThresholdUBA.toString(),
+      largeMintingDelaySeconds: ranking.directMinting.largeMintingDelaySeconds.toString(),
+      unblockUntilTimestamp: ranking.directMinting.unblockUntilTimestamp.toString(),
+      executorFeeBIPS: ranking.directMinting.executorFeeBIPS.toString(),
+      assetUnitUBA: ranking.assetUnitUBA.toString(),
     },
 
     snapshotHash: commitment.snapshotHash,

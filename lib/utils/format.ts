@@ -76,8 +76,8 @@ export function riskBand(
 }
 
 export const REASON_LABELS: Record<string, string> = {
-  insufficient_capacity: "not enough free capacity for this amount",
+  insufficient_capacity: "not enough free collateral to cover this redemption",
   not_normal_status: "agent is not in normal status",
-  no_measurable_exposure: "backs nothing yet — post-mint ratio unmeasurable",
-  would_breach_liquidation: "this mint would push it below its liquidation threshold",
+  no_measurable_exposure: "backs nothing yet — post-redemption ratio unmeasurable",
+  would_breach_liquidation: "this redemption would push it below its liquidation threshold",
 };

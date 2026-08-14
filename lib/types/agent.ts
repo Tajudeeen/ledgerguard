@@ -59,6 +59,26 @@ export type AgentSnapshot = {
   poolRedeemingUBA: bigint;
 };
 
+/** Live state of the Core Vault direct-minting rate limiter (AssetManager). */
+export type DirectMintingLimiter = {
+  /** Hourly minting cap (UBA). */
+  hourlyLimitUBA: bigint;
+  /** Daily minting cap (UBA). */
+  dailyLimitUBA: bigint;
+  /** Minted so far in the current hourly window (UBA). */
+  hourlyMintedUBA: bigint;
+  /** Minted so far in the current daily window (UBA). */
+  dailyMintedUBA: bigint;
+  /** Threshold above which a mint is "large" and delayed (UBA). */
+  largeMintingThresholdUBA: bigint;
+  /** Fixed delay applied to large mintings (seconds). */
+  largeMintingDelaySeconds: bigint;
+  /** Unix ts until which mintings are blocked by accumulated backlog. */
+  unblockUntilTimestamp: bigint;
+  /** Direct-minting executor fee in BIPS of the minted amount. */
+  executorFeeBIPS: bigint;
+};
+
 /** Result of one complete read of chain state, pinned to a single block. */
 export type FxrpAgentSnapshotResult = {
   chainId: number;
@@ -75,4 +95,6 @@ export type FxrpAgentSnapshotResult = {
   poolCollateralType: CollateralTypeInfo;
 
   snapshots: AgentSnapshot[];
+  /** Live state of the Core Vault direct-minting rate limiter. */
+  directMinting: DirectMintingLimiter;
 };
