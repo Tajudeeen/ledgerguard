@@ -8,7 +8,7 @@ function stabilityTier(score: number): { label: string; className: string } {
   return { label: "UNPROVEN", className: "text-[var(--color-faint)]" };
 }
 
-/** A horizontal strip of relative-projected-headroom dots — the agent's history. */
+/** A horizontal strip of relative-projected-headroom dots - the agent's history. */
 function HistoryStrip({ trail }: { trail: AgentTrail }) {
   const width = 140;
   const n = trail.points.length;

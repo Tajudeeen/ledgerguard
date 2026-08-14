@@ -19,7 +19,7 @@ import type { OracleView, RankingView } from "@/lib/utils/view";
  * When FTSO is not served on testnet the live price is null. Rather than show
  * an empty chart we plot against a synthetic $1.00 baseline: because the
  * liquidation price is linear in the spot price (liqPrice = spot * (1 + move)),
- * the *shape* of the chart is identical to any real price — only the $ labels
+ * the *shape* of the chart is identical to any real price - only the $ labels
  * are normalized. This keeps the cascade always populated and interactive.
  */
 export function BreachCascade({
@@ -46,7 +46,7 @@ export function BreachCascade({
   const scenarioPrice = price ?? effectivePrice;
 
   // Fixed axis bounds from the data (max of all liquidation prices and the
-  // current price, min of all liquidation prices), NOT from scenarioPrice —
+  // current price, min of all liquidation prices), NOT from scenarioPrice -
   // otherwise dragging the slider collapses the axis and it can't move back.
   const allPrices = liqPrices.map((p) => p.price).filter((p): p is number => p !== null);
   const axisTop = Math.max(effectivePrice, ...allPrices, BASELINE);
@@ -62,7 +62,7 @@ export function BreachCascade({
     <div className="border border-[var(--color-line)] bg-[var(--color-surface)] p-5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h3 className="text-sm font-medium text-[var(--color-text)]">
-          Breach cascade — driven by the XRP price
+          Breach cascade - driven by the XRP price
         </h3>
         {livePrice !== null ? (
           <span className="num text-[11px] text-[var(--color-muted)]">
@@ -78,7 +78,7 @@ export function BreachCascade({
       <p className="mt-2 text-[11px] leading-relaxed text-[var(--color-faint)]">
         Each marker is the XRP price at which that agent liquidates (collateral
         ratio hits its binding threshold). Drag the price to watch agents fall
-        off the cliff in order — these are the agents whose collateral backs the
+        off the cliff in order - these are the agents whose collateral backs the
         FXRP in circulation, so their liquidation distance is the system's
         fragility. {usingBaseline && "Labels are normalized to a $1.00 baseline; the relative positions are exact."}
       </p>
@@ -97,7 +97,7 @@ export function BreachCascade({
           aria-label="What-if XRP price in USD"
         />
         <span className="num w-24 text-right text-[var(--color-text)]">
-          ${scenarioPrice ? scenarioPrice.toFixed(4) : "—"}
+          ${scenarioPrice ? scenarioPrice.toFixed(4) : "-"}
         </span>
       </div>
 
@@ -146,7 +146,7 @@ export function BreachCascade({
         {agents.filter(
           (a) => scenarioPrice !== null && (liquidationPriceUsd(a, effectivePrice) ?? Infinity) >= scenarioPrice,
         ).length === 0 ? (
-          <span className="text-[var(--color-good)]">none — all agents survive this price</span>
+          <span className="text-[var(--color-good)]">none - all agents survive this price</span>
         ) : (
           agents
             .filter(

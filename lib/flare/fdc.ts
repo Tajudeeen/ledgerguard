@@ -10,13 +10,13 @@ import { flareTestnet } from "viem/chains";
 import { COSTON2_DEFAULT_RPC } from "./coston2";
 
 /**
- * Flare Data Connector (FDC) integration — the third Flare primitive
+ * Flare Data Connector (FDC) integration - the third Flare primitive
  * LedgerGuard uses, alongside the AssetManager (read) and the on-chain ranking
  * hash (write).
  *
  * FDC lets anyone request an attestation of off-chain data. On Coston2 the
  * supported off-chain type is **Web2Json** (FdcHub interface IWeb2Json,
- * @custom:id 0x06) — there is NO "URL" attestation type, which is why the
+ * @custom:id 0x06) - there is NO "URL" attestation type, which is why the
  * earlier URL-based request reverted ("request not supported").
  *
  * VERIFIED THIS SESSION (live on Coston2 + periphery-contracts source):
@@ -24,7 +24,7 @@ import { COSTON2_DEFAULT_RPC } from "./coston2";
  *  - requestAttestation(bytes) selector 0x6238f354 IS in FdcHub bytecode.
  *  - IFdcHub.requestAttestation(bytes) external payable.
  *  - IFdcRequestFeeConfigurations.getRequestFee(bytes) -> uint256 (reverts if
- *    the type/source is not supported — this is the conditional revert guard).
+ *    the type/source is not supported - this is the conditional revert guard).
  *  - IWeb2Json.RequestBody = { url, httpMethod, headers, queryParams, body,
  *    postProcessJq, abiSignature } (all string).
  *
@@ -148,7 +148,7 @@ export function requestAttestationCalldata(requestBytes: Hex): Hex {
  * `PublicWeb2` sourceId is registry-registered (not derivable without the
  * relay), so an in-browser auto-submit is not possible right now. This command
  * lets the user submit a REAL on-chain FdcHub.requestAttestation(bytes) request
- * from their own wallet/cli — requestAttestation stores the bytes regardless of
+ * from their own wallet/cli - requestAttestation stores the bytes regardless of
  * fee-config support, so the request is genuinely anchored on-chain. Fulfillment
  * depends on Coston2's current Web2Json source whitelist.
  */

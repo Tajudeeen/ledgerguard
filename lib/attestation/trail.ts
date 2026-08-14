@@ -2,7 +2,7 @@ import type { RankingView } from "../utils/view";
 
 /**
  * The trail turns the append-only stream of ranking attestations on Coston2
- * into a verifiable, dated history of what each FXRP agent was — and how it
+ * into a verifiable, dated history of what each FXRP agent was - and how it
  * moved.
  *
  * Design: the contract stores the *commitment* (hash + block + recommended
@@ -12,7 +12,7 @@ import type { RankingView } from "../utils/view";
  * that attestation's cached ranking.
  *
  * This is honest about its source: a trail point is "what LedgerGuard recorded
- * in attestation N at block B", not "what the chain provably showed at B" —
+ * in attestation N at block B", not "what the chain provably showed at B" -
  * although anyone can take attestation N's snapshot block, re-run the engine
  * (script/reproduce.ts), and check the cached ranking matches, which is what
  * the receipt page already does. The cache is convenience; the chain is the
@@ -55,7 +55,7 @@ export type AgentTrail = {
    *   trust       = blend, weighted toward consistency
    *
    * No black box: every term is shown on the agent page. The score describes
-   * how *stable and healthy* an agent has been across the recorded window — it
+   * how *stable and healthy* an agent has been across the recorded window - it
    * is not a guarantee about the future and is not part of the per-mint score.
    */
   stabilityScore: number;

@@ -16,7 +16,7 @@ import type { OracleView, RankingView } from "@/lib/utils/view";
  * target. This is what makes the backing defensible under volatility:
  * "Agent X survives a −37% crash; the weakest agent dies at −11%." An agent
  * that cannot survive a crash is one you should not redeem with and one whose
- * collateral is at risk of being liquidated — which is what actually backs your
+ * collateral is at risk of being liquidated - which is what actually backs your
  * FXRP.
  */
 export function ScenarioPanel({
@@ -34,7 +34,7 @@ export function ScenarioPanel({
     <div className="border border-[var(--color-line)] bg-[var(--color-surface)] p-5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h3 className="text-sm font-medium text-[var(--color-text)]">
-          Crash scenario — how far can XRP fall?
+          Crash scenario - how far can XRP fall?
         </h3>
         {xrpUsd !== null ? (
           <span className="num text-[11px] text-[var(--color-muted)]">
@@ -42,14 +42,14 @@ export function ScenarioPanel({
           </span>
         ) : (
           <span className="text-[11px] text-[var(--color-faint)]">
-            oracle-independent — derived from on-chain ratios
+            oracle-independent - derived from on-chain ratios
           </span>
         )}
       </div>
 
       <p className="mt-2 text-[11px] leading-relaxed text-[var(--color-faint)]">
         Each bar is the XRP drawdown an agent can absorb before its collateral
-        ratio hits liquidation. Longer is safer. Computed from on-chain ratios —
+        ratio hits liquidation. Longer is safer. Computed from on-chain ratios -
         no oracle required. A short bar means thin collateral: if you redeem with
         that agent, or rely on the FXRP it backs, a modest crash puts its
         collateral at risk.
@@ -96,7 +96,7 @@ export function ScenarioPanel({
       </div>
 
       <p className="mt-4 text-[11px] leading-relaxed text-[var(--color-faint)]">
-        Want a specific shock? Use the price-shock control above — it re-ranks
+        Want a specific shock? Use the price-shock control above - it re-ranks
         every agent live. {view.whatIfShockBips !== 0 && (
           <span className="text-[var(--color-warn)]">
             Currently showing XRP {formatShock(view.whatIfShockBips)}.

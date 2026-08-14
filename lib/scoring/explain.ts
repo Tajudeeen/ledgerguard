@@ -46,7 +46,7 @@ export type Comparison = {
 /**
  * Builds the "why this agent?" explanation entirely from the ranked
  * numbers. Under the current FAssets model there is no agent chosen at mint
- * time — the amount entered gauges how much FXRP a redemption of this size would
+ * time - the amount entered gauges how much FXRP a redemption of this size would
  * require, so the view shows which agents hold enough free collateral to cover
  * it and which are safest to redeem with. Nothing here is hardcoded or
  * templated with example values; if the chain state changes, the sentence
@@ -112,7 +112,7 @@ export function explainRecommendation(ranking: Ranking): Comparison {
       return {
         kind: "no_fee_spread",
         headline:
-          `Every available agent charges the same ${formatFee(recommended.feeBIPS)} fee — ` +
+          `Every available agent charges the same ${formatFee(recommended.feeBIPS)} fee - ` +
           `so fee tells you nothing, and collateral position is the whole decision`,
         detail:
           `At an identical price you could redeem through ${short(weakest)}, ` +
@@ -120,7 +120,7 @@ export function explainRecommendation(ranking: Ranking): Comparison {
           `${formatRatio(weakest.bindingLeg.currentRatioBIPS)} with ` +
           `${formatHeadroom(weakHeadroom)} of headroom. ` +
           `${short(recommended)} instead leaves ${formatHeadroom(recHeadroom)}` +
-          (delta === undefined ? "" : ` — ${formatHeadroom(delta)} more cushion`) +
+          (delta === undefined ? "" : ` - ${formatHeadroom(delta)} more cushion`) +
           `, for exactly the same fee.`,
         feeDeltaBIPS: 0n,
         headroomDeltaBIPS: delta,
@@ -152,7 +152,7 @@ export function explainRecommendation(ranking: Ranking): Comparison {
     headroomDeltaBIPS === undefined
       ? "the cheapest agent's position cannot be measured from current exposure"
       : `it leaves ${formatHeadroom(recHeadroom)} of collateral headroom against liquidation ` +
-        `instead of ${formatHeadroom(cheapHeadroom)} — a difference of ${formatHeadroom(headroomDeltaBIPS)}`;
+        `instead of ${formatHeadroom(cheapHeadroom)} - a difference of ${formatHeadroom(headroomDeltaBIPS)}`;
 
   return {
     kind: "trade_off",
@@ -168,7 +168,7 @@ export function explainRecommendation(ranking: Ranking): Comparison {
       `${formatRatio(recommended.bindingLeg.projectedRatioBIPS)} against a threshold of ` +
       `${formatRatio(recommended.bindingLeg.liquidationThresholdBIPS)}. ` +
       `A larger buffer means that agent can absorb a bigger adverse price move ` +
-      `before the protocol is entitled to liquidate the collateral — the collateral ` +
+      `before the protocol is entitled to liquidate the collateral - the collateral ` +
       `that backs the FXRP you would be redeeming against.`,
     feeDeltaBIPS,
     headroomDeltaBIPS,

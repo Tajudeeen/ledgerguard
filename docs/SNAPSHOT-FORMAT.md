@@ -1,4 +1,4 @@
-# Snapshot commitment format — `LEDGERGUARD-V1`
+# Snapshot commitment format - `LEDGERGUARD-V1`
 
 A LedgerGuard attestation commits to a keccak256 hash of one ranking. This
 document specifies the bytes exactly, so a third party can reproduce the hash
@@ -12,7 +12,7 @@ JSON is not a canonical format. Key ordering, whitespace, and number
 formatting all vary between implementations, and JavaScript cannot represent a
 `uint256` as a `number` without loss. Hashing a JSON string would therefore
 produce a commitment that is reproducible only by the exact program that
-created it — which defeats the purpose.
+created it - which defeats the purpose.
 
 LedgerGuard uses `abi.encode`, which has a fixed byte layout defined by the
 Solidity ABI specification and is implemented identically in every EVM
@@ -65,7 +65,7 @@ The commitment is `keccak256(encoded)`.
 
 ## Negative headroom
 
-Headroom is signed — an agent can be below its liquidation threshold. For a
+Headroom is signed - an agent can be below its liquidation threshold. For a
 uniform encoding, field 9 is stored offset:
 
 ```

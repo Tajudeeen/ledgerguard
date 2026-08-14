@@ -32,7 +32,7 @@ export function MintLimiter({ limiter }: { limiter: DirectMintingView }) {
       <p className="mt-2 text-[11px] leading-relaxed text-[var(--color-faint)]">
         The AssetManager caps direct XRPL→Core Vault mints per hour and per day,
         and delays mints above a size threshold. These numbers are read live from
-        the AssetManager at the snapshot block — the real constraint on the mint
+        the AssetManager at the snapshot block - the real constraint on the mint
         you just sized.
       </p>
 
@@ -64,7 +64,7 @@ export function MintLimiter({ limiter }: { limiter: DirectMintingView }) {
         <Stat label="Executor fee" value={fee(limiter.executorFeeBIPS)} />
         <Stat
           label="Throttle until"
-          value={blocked ? new Date(Number(limiter.unblockUntilTimestamp) * 1000).toISOString().slice(11, 16) + " UTC" : "—"}
+          value={blocked ? new Date(Number(limiter.unblockUntilTimestamp) * 1000).toISOString().slice(11, 16) + " UTC" : "-"}
         />
       </div>
     </section>

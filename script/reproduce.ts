@@ -4,7 +4,7 @@
  *   npx tsx script/reproduce.ts <blockNumber> <mintAmountFxrp> [attestationId]
  *
  * Re-reads the FXRP AssetManager at the given block, re-runs the scoring
- * engine, prints the hash, and — when an attestation id is supplied — reads
+ * engine, prints the hash, and - when an attestation id is supplied - reads
  * that attestation back from Coston2 and reports whether the two agree.
  *
  * Note: reading a historical block requires an archive RPC. Set COSTON2_RPC_URL
@@ -63,6 +63,6 @@ if (attestationId !== undefined) {
   console.log("\non-chain hash :", record.snapshotHash);
   console.log("on-chain block:", record.snapshotBlock);
   console.log("submitter     :", record.submitter);
-  console.log(match ? "\nMATCH — the anchored ranking reproduces exactly." : "\nMISMATCH");
+  console.log(match ? "\nMATCH - the anchored ranking reproduces exactly." : "\nMISMATCH");
   process.exit(match ? 0 : 1);
 }

@@ -7,7 +7,7 @@ import { COSTON2_EXPLORER } from "@/lib/flare/coston2";
 /**
  * Closing the loop without breaking the read-only rule or guessing an ABI.
  *
- * On the current FAssets model you do NOT pick an agent to mint — minting is a
+ * On the current FAssets model you do NOT pick an agent to mint - minting is a
  * direct XRPL payment to the Flare Core Vault, finalised on Flare by an
  * executor. Agents matter on the REDEMPTION side: when you burn FXRP to get XRP
  * back, the agent you route the redemption through must actually hold enough
@@ -77,7 +77,7 @@ export function RedemptionAgent({
         Open agent vault on Coston2 explorer →
       </a>
       <span className="mt-1 block text-[10px] text-[var(--color-faint)]">
-        AssetManager {assetManager.slice(0, 10)}… on Coston2 — LedgerGuard is
+        AssetManager {assetManager.slice(0, 10)}… on Coston2 - LedgerGuard is
         read-only and never signs a transaction.
       </span>
     </div>

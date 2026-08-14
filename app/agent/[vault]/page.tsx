@@ -122,7 +122,7 @@ export default async function AgentPage({
                   <td className="num px-3 py-2.5 text-right text-[var(--color-muted)]">
                     {p.blockNumber}
                   </td>
-                  <td className="num px-3 py-2.5 text-right">{p.rank ?? "—"}</td>
+                  <td className="num px-3 py-2.5 text-right">{p.rank ?? "-"}</td>
                   <td className="num px-3 py-2.5 text-right">
                     {ratio(p.projectedRatioBIPS)}
                   </td>
@@ -137,7 +137,7 @@ export default async function AgentPage({
                     {headroom(p.projectedHeadroomBIPS)}
                   </td>
                   <td className="num px-3 py-2.5 text-right text-[var(--color-muted)]">
-                    {p.score?.toFixed(3) ?? "—"}
+                    {p.score?.toFixed(3) ?? "-"}
                   </td>
                   <td className="num px-3 py-2.5 text-[11px]">
                     <a

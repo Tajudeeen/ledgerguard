@@ -2,7 +2,7 @@
 
 /** "12345" BIPS -> "1.23x" */
 export function ratio(bips: string | null): string {
-  if (bips === null) return "—";
+  if (bips === null) return "-";
   const v = BigInt(bips);
   const neg = v < 0n;
   const abs = neg ? -v : v;
@@ -12,7 +12,7 @@ export function ratio(bips: string | null): string {
 
 /** "5700" BIPS -> "+0.57x" */
 export function headroom(bips: string | null): string {
-  if (bips === null) return "—";
+  if (bips === null) return "-";
   return BigInt(bips) < 0n ? ratio(bips) : `+${ratio(bips)}`;
 }
 
@@ -42,7 +42,7 @@ export function shortAddress(address: string): string {
 
 /** Epoch ms -> "Aug 12, 03:15 UTC" for trail timestamps. */
 export function formatTs(ms: number): string {
-  if (!ms) return "—";
+  if (!ms) return "-";
   const d = new Date(ms);
   return d.toLocaleString("en-US", {
     month: "short",
@@ -78,6 +78,6 @@ export function riskBand(
 export const REASON_LABELS: Record<string, string> = {
   insufficient_capacity: "not enough free collateral to cover this redemption",
   not_normal_status: "agent is not in normal status",
-  no_measurable_exposure: "backs nothing yet — post-redemption ratio unmeasurable",
+  no_measurable_exposure: "backs nothing yet - post-redemption ratio unmeasurable",
   would_breach_liquidation: "this redemption would push it below its liquidation threshold",
 };

@@ -76,7 +76,7 @@ export default function TrailPage() {
 
       {loading && (
         <div className="mt-8 text-sm text-[var(--color-muted)]">
-          Reading trail…{slow && " (the demo host may be waking from sleep — this usually resolves in a few seconds)"}
+          Reading trail…{slow && " (the demo host may be waking from sleep - this usually resolves in a few seconds)"}
         </div>
       )}
       {error && (
@@ -85,7 +85,7 @@ export default function TrailPage() {
         </div>
       )}
 
-      {/* The on-chain ledger is always rendered from current chain state — it
+      {/* The on-chain ledger is always rendered from current chain state - it
           never depends on the ephemeral receipt cache, so the page is never dead. */}
       {data && data.records.length > 0 && (
         <section className="mt-8">
@@ -157,7 +157,7 @@ export default function TrailPage() {
         <div className="mt-8 border border-[var(--color-warn)]/40 bg-[var(--color-warn)]/[0.06] p-4 text-sm text-[var(--color-warn)]">
           {data.attestationCount} attestation{data.attestationCount === 1 ? "" : "s"} are confirmed on
           Coston2 (see the ledger above). Their per-agent headroom history was cached
-          on disk and lost when the demo host restarted — a hosting artifact, not a
+          on disk and lost when the demo host restarted - a hosting artifact, not a
           gap in the proof. The ledger above stays intact, and the worker re-attests
           every few minutes to rebuild the time-series. Reproduce any point yourself
           with <span className="num">script/reproduce.ts</span>.
@@ -180,11 +180,11 @@ export default function TrailPage() {
         <p className="mt-4">
           An attestation is a timestamped receipt: a hash of the ranking at a pinned
           block, anchored on Coston2 so anyone can replay and confirm it. It proves
-          provenance and that the numbers were computed at that block — it does not
+          provenance and that the numbers were computed at that block - it does not
           by itself guarantee the ranking is correct, because anyone can anchor a
           hash. Correctness is what the reproducible engine + the on-chain snapshot
           block let a third party verify. The trail is a record of what was
-          recommended and when — not a prediction, and not a guarantee.
+          recommended and when - not a prediction, and not a guarantee.
         </p>
       </footer>
     </main>

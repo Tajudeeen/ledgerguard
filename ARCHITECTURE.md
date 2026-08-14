@@ -15,7 +15,7 @@ ledgerguard/
 │       ├── receipts/route.ts       receipt cache write
 │       └── trail/route.ts          contract → per-agent trails
 ├── components/
-│   ├── AgentComparison.tsx         safest redemption agent vs weakest — the centrepiece
+│   ├── AgentComparison.tsx         safest redemption agent vs weakest - the centrepiece
 │   ├── AgentTable.tsx              full leaderboard
 │   ├── RiskScore.tsx               score component breakdown
 │   ├── RedemptionAgent.tsx         safest agent to redeem with + Core Vault explainer
@@ -46,16 +46,16 @@ ledgerguard/
 Three layers, one direction of dependency:
 
 ```
-chain adapter  (lib/flare, lib/fassets)   — knows about RPC and ABIs
+chain adapter  (lib/flare, lib/fassets)   - knows about RPC and ABIs
       ↓
-scoring engine (lib/scoring, lib/attestation) — pure; no network, no clock
+scoring engine (lib/scoring, lib/attestation) - pure; no network, no clock
       ↓
-presentation   (app, components)          — knows about React, never about ABIs
+presentation   (app, components)          - knows about React, never about ABIs
 ```
 
 The scoring engine imports nothing from `viem` except `keccak256`/`encodeAbiParameters`
 for hashing, and nothing from React at all. It can be run from a script, a test,
-or a server route identically — which is what makes `script/reproduce.ts`
+or a server route identically - which is what makes `script/reproduce.ts`
 possible as a genuine third-party verification path rather than a re-run of the
 same code path the UI uses.
 
@@ -74,7 +74,7 @@ Reasons:
 
 ## Data flow for one ranking
 
-1. `getBlock()` — pin a block number; every subsequent call uses it.
+1. `getBlock()` - pin a block number; every subsequent call uses it.
 2. Registry → `getContractAddressByName("AssetManagerFXRP")`.
 3. Parallel: `getSettings()`, `getCollateralTypes()`, first page of
    `getAvailableAgentsDetailedList(0, 50)`.
@@ -85,12 +85,12 @@ Reasons:
 8. `explainRecommendation(ranking)` → prose from the numbers.
 9. `buildSnapshotCommitment(ranking)` → `abi.encode` → `keccak256`.
 
-Steps 7–9 are pure. Given the same step-6 output they always produce the same
+Steps 7-9 are pure. Given the same step-6 output they always produce the same
 bytes, on any machine, at any later time.
 
 ## Anchoring
 
-The client encodes `attest(...)` and sends it through the injected wallet —
+The client encodes `attest(...)` and sends it through the injected wallet -
 LedgerGuard holds no key. The attestation id is recovered from the first indexed
 topic of `RankingAttested`, and the ranking is cached so the receipt can render
 it.
@@ -107,7 +107,7 @@ dated sequence of points. `lib/attestation/trail.ts` (pure) walks those points
 and reconstructs, per agent, its recorded projected headroom, eligibility, rank,
 fee and score. The full ranking for each point is cached at attest time
 (`lib/utils/receipt-store.ts`) so the trail does not need to re-read every
-historical block — but every point remains independently re-derivable via
+historical block - but every point remains independently re-derivable via
 `script/reproduce.ts <block> <amount> <id>`.
 
 The per-agent **stability score** is a transparent summary of the trail:
@@ -122,11 +122,11 @@ receipt cache on every attestation.
 
 ## Testing strategy
 
-- `test/scoring.test.ts` — 34 unit tests over the pure engine: the projection
+- `test/scoring.test.ts` - 34 unit tests over the pure engine: the projection
   identity, headroom, HHI edge cases, eligibility, tie-breaking, ordering
   independence, and hash determinism. No network.
-- `test/coston2-reader.integration.test.ts` — hits live Coston2 and asserts the
+- `test/coston2-reader.integration.test.ts` - hits live Coston2 and asserts the
   registry resolves, the block is pinned, and capacity derives correctly from
   lots.
-- `script/reproduce.ts` — end-to-end proof: replays a historical block and
+- `script/reproduce.ts` - end-to-end proof: replays a historical block and
   compares against the on-chain attestation.

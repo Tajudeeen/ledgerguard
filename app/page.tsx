@@ -92,10 +92,10 @@ export default function Home() {
             Flare · Coston2 · FAssets
           </div>
           <h1 className="mt-3 max-w-2xl text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
-            Every FXRP is backed by agent collateral — see which agents can still pay you out, and watch the system survive a crash.
+            Every FXRP is backed by agent collateral - see which agents can still pay you out, and watch the system survive a crash.
           </h1>
           <p className="mt-3 max-w-xl text-sm text-[var(--color-muted)]">
-            Minting FXRP is now a direct payment to the Flare <span className="text-[var(--color-text)]">Core Vault</span> — you
+            Minting FXRP is now a direct payment to the Flare <span className="text-[var(--color-text)]">Core Vault</span> - you
             don&apos;t pick an agent to mint. Agents instead post the collateral that
             backs the FXRP already in circulation, and they are the ones you deal with
             to <span className="text-[var(--color-text)]">redeem</span> back to XRP. LedgerGuard is a live <span className="text-[var(--color-text)]">risk radar</span>
@@ -247,7 +247,7 @@ export default function Home() {
                       </div>
                       <div className="mt-1 text-[11px] text-[var(--color-faint)]">
                         Most crash-resilient agent at block {view.blockNumber}. A stored
-                        receipt may name a different agent — it is pinned to its own block.
+                        receipt may name a different agent - it is pinned to its own block.
                       </div>
                       <div className="mt-4 grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
                         <Stat label="Post-redemption CR" value={ratio(recommended.bindingLeg.projectedRatioBIPS)} />
@@ -304,14 +304,14 @@ export default function Home() {
               <CoreVaultMint />
             </Reveal>
 
-            {/* LIVE CORE VAULT MINT THROTTLE — proves we read the new surface */}
+            {/* LIVE CORE VAULT MINT THROTTLE - proves we read the new surface */}
             {view.directMinting && (
               <Reveal>
                 <MintLimiter limiter={view.directMinting} />
               </Reveal>
             )}
 
-            {/* SCENARIO (leads — concrete proof point right after the recommendation) */}
+            {/* SCENARIO (leads - concrete proof point right after the recommendation) */}
             <Reveal>
               <section id="scenario" className="border-t border-[var(--color-line)] py-12">
                 <h2 className="mb-4 text-sm font-medium text-[var(--color-text)]">
@@ -328,13 +328,13 @@ export default function Home() {
             <Reveal>
               <section id="why" className="border-t border-[var(--color-line)] py-12">
                 <h2 className="mb-4 text-sm font-medium text-[var(--color-text)]">
-                  Why this agent — and how the backing compares
+                  Why this agent - and how the backing compares
                 </h2>
                 <AgentComparison view={view} />
               </section>
             </Reveal>
 
-            {/* LEADERBOARD (follows — dense table, now after the payoff) */}
+            {/* LEADERBOARD (follows - dense table, now after the payoff) */}
             <Reveal>
               <section id="leaderboard" className="border-t border-[var(--color-line)] py-12">
                 <div className="mb-3 flex items-baseline justify-between">
@@ -359,7 +359,7 @@ export default function Home() {
                   The anchor is a timestamped receipt: a hash of the full agent view at a
                   pinned block, written to Coston2 so anyone can replay and confirm it
                   was computed at that block. That proves provenance and reproducibility
-                  — it does not by itself guarantee the view is correct, because
+                  - it does not by itself guarantee the view is correct, because
                   anyone can anchor a hash. Correctness is what the open, reproducible
                   engine plus the on-chain snapshot block let a third party verify for
                   themselves.
@@ -406,7 +406,7 @@ export default function Home() {
             <Reveal>
               <section id="scope" className="border-t border-[var(--color-line)] py-10">
                 <h2 className="mb-3 text-sm font-medium text-[var(--color-text)]">
-                  What LedgerGuard is — and isn&apos;t
+                  What LedgerGuard is - and isn&apos;t
                 </h2>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="border border-[var(--color-line)] bg-[var(--color-surface)] p-4 text-xs leading-relaxed text-[var(--color-muted)]">
@@ -418,7 +418,7 @@ export default function Home() {
                   </div>
                   <div className="border border-[var(--color-line)] bg-[var(--color-surface)] p-4 text-xs leading-relaxed text-[var(--color-muted)]">
                     <span className="font-medium text-[var(--color-warn)]">It isn&apos;t </span>
-                    a minter or a redeemer — it never signs a transaction and the FXRP
+                    a minter or a redeemer - it never signs a transaction and the FXRP
                     mint itself is a direct payment to the Core Vault, not an agent
                     choice. On Coston2 today all four agents charge the same 0.25% fee,
                     so the ranking is by risk, not price. Scope, not a gap.

@@ -23,7 +23,7 @@ import { BIPS, backedUBA, headroomBIPS, projectRatioBIPS } from "./headroom";
  *    is that a few BIPS of fee must not outrank a materially safer position.
  *
  * Note: under the current FAssets model FXRP is minted with a direct Core Vault
- * payment — there is no "mint agent" to choose. The amount the user enters
+ * payment - there is no "mint agent" to choose. The amount the user enters
  * models the exposure a redemption of that size would place on an agent, so the
  * ranking answers "which agents hold enough safe collateral to back/redeem this
  * much FXRP, and which are the most crash-resilient?"
@@ -48,7 +48,7 @@ export const WEIGHTS = {
  *
  *     relativeHeadroom = headroomBIPS / liquidationThresholdBIPS
  *
- * Saturates at 1.0 — a cushion equal to the whole threshold (i.e. a ratio of
+ * Saturates at 1.0 - a cushion equal to the whole threshold (i.e. a ratio of
  * 2x the liquidation point) is treated as fully safe. Beyond that, additional
  * collateral does not meaningfully change the risk of THIS mint.
  */
@@ -133,7 +133,7 @@ export type Ranking = {
   agents: RankedAgent[];
   recommended: RankedAgent | undefined;
   cheapest: RankedAgent | undefined;
-  /** True when the safest choice is also the cheapest — no trade-off to explain. */
+  /** True when the safest choice is also the cheapest - no trade-off to explain. */
   recommendationMatchesCheapest: boolean;
 
   concentration: ConcentrationReport;

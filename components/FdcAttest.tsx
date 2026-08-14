@@ -6,7 +6,7 @@ import { COSTON2_EXPLORER } from "@/lib/flare/coston2";
 import { FDC_HUB, buildFdcCastCommand } from "@/lib/flare/fdc";
 
 /**
- * Flare Data Connector (FDC) — the third Flare primitive LedgerGuard uses.
+ * Flare Data Connector (FDC) - the third Flare primitive LedgerGuard uses.
  *
  * Honest status (verified Aug 2026): the Coston2 FDC relay
  * (coston2-fdc-test.flare.network) is currently DOWN (DNS ERR_NAME_NOT_RESOLVED),
@@ -14,7 +14,7 @@ import { FDC_HUB, buildFdcCastCommand } from "@/lib/flare/fdc";
  * (not derivable without the relay), so an in-browser auto-submit is not
  * possible right now. Instead we expose a copy-ready `cast send` command that
  * submits a REAL on-chain FdcHub.requestAttestation(bytes) Web2Json request from
- * the user's own wallet — requestAttestation stores the bytes regardless of
+ * the user's own wallet - requestAttestation stores the bytes regardless of
  * fee-config support, so the request is genuinely anchored on-chain.
  * Fulfillment depends on Coston2's current Web2Json source whitelist.
  */
@@ -40,7 +40,7 @@ export function FdcAttest({ agentVault }: { agentVault: string }) {
       </h3>
       <p className="mt-2 text-[11px] leading-relaxed text-[var(--color-faint)]">
         LedgerGuard reads the AssetManager and writes the ranking hash on-chain
-        (see &ldquo;Anchor ranking&rdquo; above — a real signed tx). The third
+        (see &ldquo;Anchor ranking&rdquo; above - a real signed tx). The third
         Flare primitive is the <span className="num">Data Connector (FDC)</span>:
         it lets anyone request an independent attestation of off-chain data. The
         command below submits a real, wallet-signed{" "}

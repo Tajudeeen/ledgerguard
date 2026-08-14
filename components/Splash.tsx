@@ -43,7 +43,7 @@ export function Splash() {
         <div>
           <div className="flare-text text-2xl font-semibold tracking-tight">LedgerGuard</div>
           <div className="mt-2 max-w-md text-sm text-[var(--color-muted)]">
-            Risk-aware collateral intelligence for FXRP — read from Flare, ranked
+            Risk-aware collateral intelligence for FXRP - read from Flare, ranked
             by math, anchored on Coston2.
           </div>
         </div>

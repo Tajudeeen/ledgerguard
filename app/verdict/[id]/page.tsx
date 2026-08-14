@@ -33,7 +33,7 @@ type Verification =
  * cache-independent source of truth) and renders it. The detailed per-agent
  * ranking is a convenience held in the local receipt cache; when that cache
  * is missing (e.g. after a host restart) we still show the verifiable
- * on-chain record and say plainly that the agent table is not cached — we
+ * on-chain record and say plainly that the agent table is not cached - we
  * never 404 an attestation that provably exists on-chain.
  */
 async function verify(
@@ -132,7 +132,7 @@ export default async function VerdictPage({
         <div className="mt-6 border border-[var(--color-warn)]/40 bg-[var(--color-warn)]/[0.06] p-4 text-sm text-[var(--color-warn)]">
           This attestation exists on Coston2 but its detailed per-agent ranking
           was not in the local cache (the cache is wiped when the demo host
-          restarts). The verifiable on-chain record below is complete — the
+          restarts). The verifiable on-chain record below is complete - the
           agent table returns as the worker re-attests.
         </div>
       )}
@@ -151,7 +151,7 @@ export default async function VerdictPage({
           />
           <Field
             label="eligible"
-            value={view ? String(view.eligibleCount) : "— (not cached)"}
+            value={view ? String(view.eligibleCount) : "- (not cached)"}
           />
           <Field label="recommended" value={recommendedLabel} wrap />
         </Panel>
@@ -270,8 +270,8 @@ function VerificationBanner({ verification }: { verification: Verification }) {
         }`}
       >
         {ok
-          ? "Verified — the hash stored on Coston2 matches this ranking"
-          : "Mismatch — the on-chain hash does not match this ranking"}
+          ? "Verified - the hash stored on Coston2 matches this ranking"
+          : "Mismatch - the on-chain hash does not match this ranking"}
       </div>
       <div className="num mt-2 space-y-1 text-[11px] text-[var(--color-muted)]">
         <div className="break-all">on-chain hash: {verification.onChainHash}</div>

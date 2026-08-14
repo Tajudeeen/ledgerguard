@@ -4,7 +4,7 @@ import { flareTestnet } from "viem/chains";
 import { COSTON2_CONTRACT_REGISTRY } from "./coston2";
 
 /**
- * Flare FTSO V2 — the network's price oracle. LedgerGuard reads the live XRP/USD
+ * Flare FTSO V2 - the network's price oracle. LedgerGuard reads the live XRP/USD
  * feed to show the market price the AssetManager itself uses for collateral
  * valuation, and to anchor the stress-test narrative ("XRP is trading at $X").
  *
@@ -13,7 +13,7 @@ import { COSTON2_CONTRACT_REGISTRY } from "./coston2";
  * are frequently not populated (returns 0 / near-epoch timestamp). We therefore
  * treat a zero or stale value as "oracle not served here" and surface that
  * honestly rather than presenting a fake price. The stress test itself does not
- * depend on this feed — it operates on on-chain ratios directly.
+ * depend on this feed - it operates on on-chain ratios directly.
  */
 
 export const FTSO_FEED_XRP_USD =

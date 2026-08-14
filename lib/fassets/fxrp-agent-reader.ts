@@ -16,7 +16,7 @@ import type {
   FxrpAgentSnapshotResult,
 } from "../types/agent";
 
-/** getAvailableAgentsDetailedList takes (_start, _end) — an index window, not a count. */
+/** getAvailableAgentsDetailedList takes (_start, _end) - an index window, not a count. */
 const PAGE_SIZE = 50n;
 
 const COLLATERAL_CLASS_POOL = 1;

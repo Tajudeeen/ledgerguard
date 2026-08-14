@@ -5,7 +5,7 @@ specific about what the product cannot do, because a risk tool that overstates
 its own certainty is worse than no tool.
 
 **Model context.** Minting FXRP on the current FAssets model is a direct XRPL
-payment to the Core Vault, finalised on Flare by an executor — there is no agent
+payment to the Core Vault, finalised on Flare by an executor - there is no agent
 to choose at mint time. The agent risk that remains is on the **redemption** side
 (agents must hold enough free collateral to pay you out) and in the **collateral
 backing** behind the FXRP already in circulation. LedgerGuard ranks that
@@ -29,9 +29,9 @@ LedgerGuard shows the snapshot block on every screen for exactly this reason.
 
 `CR_after = CR_before × backed / (backed + mint)` is an exact identity **holding
 the asset price constant**. That assumption is what lets LedgerGuard avoid a
-price oracle entirely — the unknown collateral value and price cancel.
+price oracle entirely - the unknown collateral value and price cancel.
 
-It also means the projection isolates the effect of *your redemption* — the
+It also means the projection isolates the effect of *your redemption* - the
 exposure a redemption of the entered size would place on an agent. It is not
 a forecast. If XRP moves against the collateral between the snapshot and your
 redemption, the realised ratio will differ from the projected one, and the
@@ -55,7 +55,7 @@ under today's 1.20x vault threshold would look very different under 1.40x.
 LedgerGuard flags an agent when the projected ratio falls to or below the
 liquidation threshold. It does **not** simulate the AssetManager's minting
 logic. The protocol may reject a mint that LedgerGuard considers eligible, and
-its own checks — not LedgerGuard's — are authoritative. LedgerGuard never
+its own checks - not LedgerGuard's - are authoritative. LedgerGuard never
 executes a transaction and never reserves collateral.
 
 ## Capacity is derived from free lots
@@ -70,7 +70,7 @@ UBA comparison suggests.
 An agent backing nothing has no meaningful collateral ratio, so its post-mint
 ratio cannot be projected from the ratio alone. LedgerGuard marks these
 `no_measurable_exposure` and excludes them from recommendation. **This is not a
-statement that such agents are unsafe** — it is a statement that LedgerGuard
+statement that such agents are unsafe** - it is a statement that LedgerGuard
 cannot measure them, and it declines to guess.
 
 ## The score is a judgement, not a fact
@@ -82,7 +82,7 @@ component is exposed in the UI so you can disagree with the aggregate and still
 use the parts.
 
 Scores saturate, so several agents can legitimately tie at 1.0. Ties are broken
-on raw headroom, then fee, then address — the last of which is arbitrary, and is
+on raw headroom, then fee, then address - the last of which is arbitrary, and is
 only ever reached when the agents are genuinely indistinguishable on every
 metric that matters.
 
@@ -169,6 +169,6 @@ block safe.
 
 No mint execution (the FXRP mint is a direct Core Vault payment, not an agent
 choice). No mainnet or Songbird. No FAssets other than FXRP. No live redemption
-execution — LedgerGuard identifies which agents can safely cover a redemption
+execution - LedgerGuard identifies which agents can safely cover a redemption
 and how crash-resilient they are, but does not perform the burn. No detection of
 agent misbehaviour or collusion. No MEV or transaction-ordering considerations.

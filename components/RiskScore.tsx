@@ -10,7 +10,7 @@ const WEIGHTS: Record<keyof AgentView["components"], { label: string; weight: nu
 
 /**
  * Shows how the score was assembled. Every component is normalised to [0,1]
- * and multiplied by a fixed, published weight — there is no hidden term.
+ * and multiplied by a fixed, published weight - there is no hidden term.
  */
 export function RiskScore({ agent }: { agent: AgentView }) {
   const keys = Object.keys(WEIGHTS) as (keyof AgentView["components"])[];
@@ -62,7 +62,7 @@ export function RiskScore({ agent }: { agent: AgentView }) {
       <p className="mt-2 text-[11px] leading-relaxed text-[var(--color-faint)]">
         Components saturate at 1.0. Fee is shown for completeness but is
         weighted below every safety term by design, and is constant across all
-        Coston2 agents today — so it cannot change the ranking. The score
+        Coston2 agents today - so it cannot change the ranking. The score
         reflects collateral backing and crash survival; the FXRP mint itself is
         a direct Core Vault payment, not an agent choice.
       </p>

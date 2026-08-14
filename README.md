@@ -2,7 +2,7 @@
 
 **Risk-aware collateral intelligence for FXRP on Flare.**
 
-FAssets publishes everything about its agents on-chain — but the agent role
+FAssets publishes everything about its agents on-chain - but the agent role
 changed. Minting FXRP is now a **direct payment to the Core Vault**, not a
 choice of agent; agents instead post the collateral that backs the FXRP already
 in circulation and are the counterparties you deal with to **redeem** back to
@@ -19,7 +19,7 @@ enter 500 FXRP  →  4 agents analyzed  →  safest redemption agent vs weakest
 > Model note: this reframing follows the current FAssets minting model
 > (dev.flare.network/fassets/minting), where `executeDirectMinting` finalises a
 > mint paid directly to the Core Vault. The old "pick an agent to mint" flow no
-> longer applies, so LedgerGuard ranks agents by the collateral they post — the
+> longer applies, so LedgerGuard ranks agents by the collateral they post - the
 > risk that remains is on the redemption side and in the backing behind your
 > FXRP.
 
@@ -27,7 +27,7 @@ enter 500 FXRP  →  4 agents analyzed  →  safest redemption agent vs weakest
 
 ## Problem
 
-FXRP is minted by sending XRP straight to the Flare Core Vault — you do not
+FXRP is minted by sending XRP straight to the Flare Core Vault - you do not
 select an agent at mint time. The agent question moves to **redemption**: when
 you burn FXRP to get XRP back, the agent you route through must actually hold
 enough free collateral to pay you. `getAvailableAgentsDetailedList()` returns
@@ -37,7 +37,7 @@ more fields per agent. None of it answers the questions a holder actually has:
 > Which agents can still cover a redemption of my size, and which one survives
 > the deepest crash before its collateral is liquidated?
 
-The naive answer — sort by fee — is actively wrong here. Fee is a few basis
+The naive answer - sort by fee - is actively wrong here. Fee is a few basis
 points. The difference between an agent sitting at a comfortable collateral
 ratio and one hovering just above its liquidation threshold is the difference
 between a redemption that pays out and one that stalls, or between FXRP whose
@@ -51,7 +51,7 @@ LedgerGuard turns the raw agent data into a ranked, explained view:
 1. Reads every available agent from the FXRP AssetManager at a single pinned block.
 2. Projects each agent's collateral ratio *after* taking on the exposure implied by the FXRP amount entered (a redemption of that size).
 3. Measures headroom against the agent's real liquidation threshold.
-4. Ranks agents on published, weighted, individually visible components — by collateral safety, not by fee.
+4. Ranks agents on published, weighted, individually visible components - by collateral safety, not by fee.
 5. Shows the safest redemption agent against the weakest one, and explains the gap in a sentence generated from the actual numbers.
 6. Commits the whole view to a deterministic hash and anchors it on Coston2.
 
@@ -61,7 +61,7 @@ Everything LedgerGuard reads is Flare-native and resolved at runtime:
 
 | What | How |
 |------|-----|
-| Contract discovery | `FlareContractRegistry` at `0xaD67FE66660Fb8dFE9d6b1b4240d8650e30F6019` — the only hardcoded address |
+| Contract discovery | `FlareContractRegistry` at `0xaD67FE66660Fb8dFE9d6b1b4240d8650e30F6019` - the only hardcoded address |
 | FXRP asset manager | `getContractAddressByName("AssetManagerFXRP")` → `0xc1Ca88b937d0b528842F95d5731ffB586f4fbDFA` |
 | Agent set | `IAssetManager.getAvailableAgentsDetailedList(start, end)` |
 | Agent detail | `IAssetManager.getAgentInfo(agentVault)` |
@@ -69,8 +69,8 @@ Everything LedgerGuard reads is Flare-native and resolved at runtime:
 | Lot sizing | `IAssetManager.getSettings()` |
 | Core Vault mint throttle | `getDirectMintingHourlyLimitUBA` / `DailyLimitUBA` / `HourlyLimiterState` / `DailyLimiterState` / `LargeMintingThresholdUBA` / `LargeMintingDelaySeconds` / `DirectMintingsUnblockUntilTimestamp` / `DirectMintingExecutorFeeUBA` |
 
-The mint throttle block is the actual constraint on the direct Core Vault mint —
-hourly and daily caps plus a "large minting" delay — and almost no dashboard
+The mint throttle block is the actual constraint on the direct Core Vault mint -
+hourly and daily caps plus a "large minting" delay - and almost no dashboard
 visualises it. LedgerGuard reads it at the same pinned block as the agent view
 and shows it live on the home page, proving it reads the *current* FAssets
 surface rather than legacy agent-mint state.
@@ -105,7 +105,7 @@ receipt at /verdict/[id]                               app/verdict
 The scoring engine is a pure function with no network, no clock and no
 randomness. That is what makes the anchored hash reproducible.
 
-It is also covered by an offline test suite — `npm run test:coverage` runs
+It is also covered by an offline test suite - `npm run test:coverage` runs
 **64 scoring-engine tests** across the ranking, headroom, liquidation, stress,
 breach-cascade and trail modules and reports **~91% line coverage** (branch
 ~71%). The live-chain reader (`fxrp-agent-reader.ts`) is covered by the
@@ -118,7 +118,7 @@ Nothing here is a black box. Every number below is visible in the UI.
 
 ### Projected collateral ratio
 
-A redemption does not change an agent's collateral — it increases the asset
+A redemption does not change an agent's collateral - it increases the asset
 value that collateral must back. So for constant collateral and constant price:
 
 ```
@@ -129,7 +129,7 @@ This is an **identity, not an estimate**: the unknown collateral value and the
 unknown asset price cancel out. LedgerGuard needs no price oracle to project the
 post-mint ratio, and the projection cannot drift because of a stale feed.
 
-`backed = mintedUBA + reservedUBA + redeemingUBA` — all three consume
+`backed = mintedUBA + reservedUBA + redeemingUBA` - all three consume
 collateral, so counting only `mintedUBA` would flatter a busy agent.
 
 ### Two collateral legs
@@ -169,20 +169,20 @@ score = 0.50·postMintHeadroom + 0.25·currentHealth
 ```
 
 **Post-mint headroom carries the most weight because it is the only term the
-user's decision actually changes.** Fee is capped at 0.10 — strictly below every
-safety term — so a cheaper agent can never outrank a materially safer one. This
+user's decision actually changes.** Fee is capped at 0.10 - strictly below every
+safety term - so a cheaper agent can never outrank a materially safer one. This
 bound is asserted in the test suite, not just claimed here.
 
 Scores saturate deliberately: past a cushion equal to the liquidation threshold,
 more collateral does not change *this* mint's risk. Well-collateralised agents
 can therefore legitimately tie at 1.0, and ties are broken on raw unsaturated
-headroom, then fee, then address — never on address alone.
+headroom, then fee, then address - never on address alone.
 
 ### Eligibility
 
 An agent is excluded from recommendation, with the reason shown, when it has
 insufficient capacity, is not in normal status, backs nothing yet (post-mint
-ratio unmeasurable — treated as unknown, never as safe), or when the mint would
+ratio unmeasurable - treated as unknown, never as safe), or when the mint would
 push it below a liquidation threshold.
 
 ### HHI concentration
@@ -198,7 +198,7 @@ you. Conflating the two would be a category error.
 
 ## On-chain proof
 
-`contracts/RankingAttestation.sol` stores a commitment, not the leaderboard —
+`contracts/RankingAttestation.sol` stores a commitment, not the leaderboard -
 the ranking is reproducible from the block number, so writing rows on-chain
 would cost gas for no added trust. No owner, no admin, no upgrade path;
 append-only.
@@ -232,13 +232,13 @@ npx tsx script/reproduce.ts <blockNumber> <mintAmountFxrp> [attestationId]
 
 This re-reads Coston2 at the attested block, re-runs the engine, and compares
 its hash against the one stored on-chain. Confirmed working against historical
-blocks — the same block and amount reproduce a byte-identical hash.
+blocks - the same block and amount reproduce a byte-identical hash.
 
 ## Verifiable agent trail
 
 Anchoring one ranking proves *provenance*. Re-anchoring the same standard mint
 repeatedly turns the contract into a **dated, replayable record of agent
-behaviour** — something no centralised FAssets monitor can fake, because every
+behaviour** - something no centralised FAssets monitor can fake, because every
 point pins a block and a hash anyone can re-derive.
 
 `/trail` reads every attestation from the deployed contract and reconstructs,
@@ -269,10 +269,10 @@ Each attestation writes its full ranking to the receipt cache so the trail and
 agent pages can reconstruct every point; each point is independently
 re-verifiable via `script/reproduce.ts <block> <amount> <id>`.
 
-## Stress test — what if the price moves?
+## Stress test - what if the price moves?
 
 The single-mint ranking answers *"which agent, today?"* The stress test answers
-*"which agent survives a bad day?"* — the question the fee-spread demo can't
+*"which agent survives a bad day?"* - the question the fee-spread demo can't
 reach on a homogeneous testnet where every agent charges the same 0.25%.
 
 The homepage exposes a **price-shock** control (−10% / −25% / −40% / −60%). It
@@ -287,7 +287,7 @@ Because collateral ratio = collateral value ÷ minted value, a fractional price
 drop `shock` scales the ratio by `(1 + shock)`. No oracle is needed, so the
 result is identical on testnet and mainnet and reproduces exactly. The
 leaderboard gains a live **"If −40%"** column: agents whose post-shock projected
-headroom falls below their liquidation threshold are flagged ineligible — the
+headroom falls below their liquidation threshold are flagged ineligible - the
 same rejection path the real recommendation uses, but now fired by a *market*
 move rather than by mint size. At 500 FXRP nothing breaches; at 5,000 FXRP with
 a −40% shock two of four Coston2 agents drop out, and the recommendation
@@ -297,12 +297,12 @@ LedgerGuard also reads the live **Flare FTSO V2** XRP/USD feed (resolved from th
 registry, like every other contract) and displays it as the market price the
 AssetManager uses. On the Coston2 *testnet* the feed is frequently not
 populated; when that happens the UI says so plainly and the stress test falls
-back to on-chain ratios — it never shows a fabricated price.
+back to on-chain ratios - it never shows a fabricated price.
 
-## Crash scenario — FTSO-aware, per-agent
+## Crash scenario - FTSO-aware, per-agent
 
 The homepage's scenario panel turns the oracle into the centrepiece of the
-decision. For every agent it computes the **liquidation price-move** — how far
+decision. For every agent it computes the **liquidation price-move** - how far
 XRP can fall before that agent's collateral ratio hits its binding liquidation
 threshold:
 
@@ -314,7 +314,7 @@ This is exact and derived entirely from on-chain ratios, so it needs no oracle
 to compute. When the live FTSO XRP/USD price is available it is also expressed
 as an absolute dollar target ("liquidates if XRP < $Y"). The agents are sorted
 most-robust-first, so the recommendation and the weakest agent are visible side
-by side — "Agent X survives a −85% crash; the weakest dies at −28%." That is the
+by side - "Agent X survives a −85% crash; the weakest dies at −28%." That is the
 risk-adjusted story a fee comparison cannot tell on a homogeneous testnet.
 
 The app opens on a choreographed, scroll-revealed narrative: hero → recommended
@@ -341,7 +341,7 @@ DEPLOYER_PRIVATE_KEY=0x... node script/deploy.mjs        # → deployments/costo
 ```
 
 Then set `NEXT_PUBLIC_ATTESTATION_ADDRESS` to the deployed address to enable
-anchoring in the UI. **This variable is inlined at build time** — `Next.js`
+anchoring in the UI. **This variable is inlined at build time** - `Next.js`
 only exposes `NEXT_PUBLIC_*` vars that were present when `next build` ran, so
 set it in the environment before building, not only before `next start`.
 
@@ -350,7 +350,7 @@ set it in the environment before building, not only before `next start`.
 Built during the hackathon: the entire Coston2 read pipeline, the scoring
 engine and its test suite, the deterministic snapshot format,
 `RankingAttestation.sol`, the deploy and reproduce scripts, the comparison UI,
-the leaderboard, the receipt page, the **verifiable agent trail**, the **oracle-aware stress test**, and the **FTSO-driven crash scenario** with a choreographed narrative — a
+the leaderboard, the receipt page, the **verifiable agent trail**, the **oracle-aware stress test**, and the **FTSO-driven crash scenario** with a choreographed narrative - a
 running, replayable history of agent behaviour built from repeated attestations
 of the standard mint (`/trail`, `/agent/[vault]`, `script/trail-worker.ts`).
 
@@ -363,8 +363,8 @@ collateral health; it does not itself mint or redeem.
 See [KNOWN_LIMITATIONS.md](KNOWN_LIMITATIONS.md). The short version: LedgerGuard
 is a **decision aid, not a guarantee**. It ranks a snapshot that is stale the
 moment after it is taken, it does not execute or bind anything, and it does not
-replace AssetManager enforcement. It also never picks your mint agent — the FXRP
-mint is a direct Core Vault payment — it ranks the agents whose collateral
+replace AssetManager enforcement. It also never picks your mint agent - the FXRP
+mint is a direct Core Vault payment - it ranks the agents whose collateral
 backs the system and who are safe to redeem with.
 
 One honest observation about the current testnet: **all four available Coston2
@@ -372,7 +372,7 @@ agents charge the same 0.25% fee.** The cheapest-vs-safest trade-off the product
 is designed around therefore cannot be demonstrated with a real fee spread
 today. Rather than fabricate one, LedgerGuard detects the condition, says so
 plainly, and contrasts the recommendation against the *weakest agent available
-at the same price* — which is the decision that actually matters when fee
+at the same price* - which is the decision that actually matters when fee
 carries no information.
 
 ## Roadmap
@@ -384,5 +384,5 @@ Only what follows from the current architecture:
 - Multi-lot splitting: route a large mint across several agents to reduce both
   per-agent impact and system concentration.
 - Historical attestation index: track how recommendations aged. _(Delivered
-  as the agent trail — see above.)_
+  as the agent trail - see above.)_
 - Songbird and mainnet once the FXRP agent set there is non-trivial.

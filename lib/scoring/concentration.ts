@@ -46,7 +46,7 @@ export function computeConcentration(
     };
   });
 
-  // Σ share² — divide back down once per term to stay in 1e18 scale.
+  // Σ share² - divide back down once per term to stay in 1e18 scale.
   const hhiScaled =
     totalBackedUBA === 0n
       ? 0n

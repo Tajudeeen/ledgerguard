@@ -15,7 +15,7 @@ import type { AgentSnapshot } from "../types/agent";
  *     CR_after_shock = CR_after_constant * (1 - s)
  *
  * This is a deterministic sensitivity analysis on data LedgerGuard already
- * reads from chain — no live price feed required, so it works identically on
+ * reads from chain - no live price feed required, so it works identically on
  * testnet and mainnet and is fully reproducible. It answers the question the
  * fee-spread demo can't on a homogeneous testnet:
  *

@@ -7,7 +7,7 @@ Coston2. It never executes mints and never moves funds.
 
 - Contract addresses, transaction hashes, and block numbers (on-chain, public
   by nature).
-- The deployer **wallet address** (`0x5412…d7c8`) — an address is not a secret.
+- The deployer **wallet address** (`0x5412…d7c8`) - an address is not a secret.
 - The `RankingAttestation` ABI and source (`contracts/RankingAttestation.sol`).
 - Deployment records under `deployments/` (address, tx, block, public ABI).
 - All scoring, reading, and UI code.
@@ -20,7 +20,7 @@ Coston2. It never executes mints and never moves funds.
 - Session tokens, API keys, or RPC credentials with write access.
 
 `.gitignore` already excludes `.env*`. If you fork or clone this repo, create
-your own `.env.local` — do not reuse the original deployer key.
+your own `.env.local` - do not reuse the original deployer key.
 
 ## Attestation trust model
 
@@ -32,7 +32,7 @@ your own `.env.local` — do not reuse the original deployer key.
 - The verifiable **trail** (`/trail`, `/agent/[vault]`) is reconstructed from
   on-chain attestation records plus a local receipt cache. The cache is
   tamper-evident (any change is caught by the verdict re-verification) but the
-  cached *content* is trusted for display — it is a convenience layer, not the
+  cached *content* is trusted for display - it is a convenience layer, not the
   source of truth. The source of truth is the contract on Coston2.
 
 ## Risk disclaimer

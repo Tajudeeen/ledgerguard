@@ -59,7 +59,7 @@ export function ConcentrationPanel({ view }: { view: RankingView }) {
         Total FXRP backed across available agents:{" "}
         <span className="num">{fxrp(totalBackedUBA, view.assetUnitUBA)}</span>. HHI is
         the sum of squared exposure shares. It measures how concentrated the
-        backing is — it is reported as context and is not a term in any agent&apos;s
+        backing is - it is reported as context and is not a term in any agent&apos;s
         safety score. With only {agentCount} live agents the theoretical floor is{" "}
         <span className="num">{minPossibleHhi.toFixed(4)}</span>, so on Coston2 a
         &ldquo;concentrated&rdquo; reading mostly reflects how few agents back the
