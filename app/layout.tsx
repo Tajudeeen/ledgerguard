@@ -8,16 +8,16 @@ import { Analytics } from "@vercel/analytics/next";
 // Canonical live URL — the Vercel deployment a judge opens. Every sharable
 // link, OG tag and canonical reference must point here and nowhere else.
 const SITE_URL = "https://ledgerguard-app.vercel.app";
-const TITLE = "LedgerGuard — risk-ranked FXRP agent selection";
+const TITLE = "LedgerGuard — FXRP collateral risk on Flare Coston2";
 const DESCRIPTION =
-  "Ranks live FXRP minting agents on Flare Coston2 by projected collateral headroom, shows how far XRP can fall before each agent liquidates, and anchors the ranking on-chain so anyone can verify it later.";
+  "Reads live FXRP agent collateral on Flare Coston2, ranks agents by how deep a crash they survive and whether they can cover a redemption, and anchors the view on-chain so anyone can verify it later.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: TITLE,
   description: DESCRIPTION,
   applicationName: "LedgerGuard",
-  keywords: ["Flare", "Coston2", "FAssets", "FXRP", "liquidation", "risk", "agent selection"],
+  keywords: ["Flare", "Coston2", "FAssets", "FXRP", "liquidation", "risk", "collateral", "redemption"],
   authors: [{ name: "LedgerGuard" }],
   icons: {
     icon: "/icon.svg",

@@ -9,9 +9,9 @@ import {
 } from "@/lib/utils/format";
 
 /**
- * The centrepiece: every live agent as a ranked card, with the recommended
- * one accented and the difference spelled out in numbers that all trace back
- * to chain state.
+ * The centrepiece: every live agent as a ranked card, with the safest
+ * redemption agent accented and the difference spelled out in numbers that all
+ * trace back to chain state.
  */
 export function AgentComparison({ view }: { view: RankingView }) {
   if (!view.agents.length) {
@@ -34,8 +34,8 @@ export function AgentComparison({ view }: { view: RankingView }) {
             key={a.agentVault}
             agent={a}
             view={view}
-            title={a.agentVault === view.recommendedVault ? "LedgerGuard recommendation" : a.eligible ? `Alternative #${a.rank}` : `Ineligible #${a.rank}`}
-            subtitle={a.agentVault === view.recommendedVault ? "strongest risk-adjusted position" : a.eligible ? "same fee, different risk" : "cannot take this mint"}
+            title={a.agentVault === view.recommendedVault ? "Safest redemption agent" : a.eligible ? `Alternative #${a.rank}` : `Ineligible #${a.rank}`}
+            subtitle={a.agentVault === view.recommendedVault ? "strongest crash-resilient backing" : a.eligible ? "same backing pool, different risk" : "cannot safely cover a redemption"}
             accent={a.agentVault === view.recommendedVault}
           />
         ))}
@@ -43,7 +43,7 @@ export function AgentComparison({ view }: { view: RankingView }) {
 
       <div className="border-l-2 border-[var(--color-accent)] bg-[var(--color-surface)] px-5 py-4">
         <div className="text-[11px] uppercase tracking-wider text-[var(--color-faint)]">
-          {view.feeSpreadExists ? "Why not the cheapest?" : "Why this agent?"}
+          {view.feeSpreadExists ? "Why not the cheapest agent?" : "Why this agent?"}
         </div>
         <div className="mt-1.5 text-[15px] leading-snug text-[var(--color-text)]">
           {view.comparison.headline}

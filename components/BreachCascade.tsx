@@ -78,7 +78,9 @@ export function BreachCascade({
       <p className="mt-2 text-[11px] leading-relaxed text-[var(--color-faint)]">
         Each marker is the XRP price at which that agent liquidates (collateral
         ratio hits its binding threshold). Drag the price to watch agents fall
-        off the cliff in order. {usingBaseline && "Labels are normalized to a $1.00 baseline; the relative positions are exact."}
+        off the cliff in order — these are the agents whose collateral backs the
+        FXRP in circulation, so their liquidation distance is the system's
+        fragility. {usingBaseline && "Labels are normalized to a $1.00 baseline; the relative positions are exact."}
       </p>
 
       {/* What-if price control */}

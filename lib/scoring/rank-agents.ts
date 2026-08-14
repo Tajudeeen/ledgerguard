@@ -11,14 +11,21 @@ import { BIPS, backedUBA, headroomBIPS, projectRatioBIPS } from "./headroom";
  * documented in README "Scoring methodology". Every component is normalised to
  * [0,1] before weighting so no factor can dominate through raw magnitude.
  *
- * Rationale for the ordering (brief §10):
- *  - Post-mint headroom is the decision variable: it is what actually changes
- *    as a result of the user's mint, so it carries the most weight.
+ * Rationale for the ordering:
+ *  - Post-mint headroom is the binding constraint: it is the agent's collateral
+ *    position after it has taken on the exposure implied by the FXRP amount the
+ *    user enters (a redemption of that size), so it carries the most weight.
  *  - Current health is the starting position and a check that the agent was
- *    not already marginal before the mint.
+ *    not already marginal before the exposure.
  *  - Capacity buffer rewards agents that are not left scraping their limit.
  *  - Fee is real user cost but is intentionally capped low: the entire premise
  *    is that a few BIPS of fee must not outrank a materially safer position.
+ *
+ * Note: under the current FAssets model FXRP is minted with a direct Core Vault
+ * payment — there is no "mint agent" to choose. The amount the user enters
+ * models the exposure a redemption of that size would place on an agent, so the
+ * ranking answers "which agents hold enough safe collateral to back/redeem this
+ * much FXRP, and which are the most crash-resilient?"
  *
  * Fee weight (0.10) is strictly less than post-mint headroom weight (0.50), so
  * a full fee advantage can never overturn a headroom deficit larger than 20%
@@ -197,7 +204,8 @@ function buildLeg(
 }
 
 /**
- * Deterministic, explainable ranking of the available agents for one mint.
+ * Deterministic, explainable ranking of the available agents for one amount of
+ * FXRP exposure (a redemption of that size).
  *
  * Pure function: identical inputs always produce an identical ranking, with no
  * clock, no randomness, and no network access. This is what makes the anchored

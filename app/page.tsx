@@ -10,8 +10,9 @@ import { Reveal } from "@/components/Reveal";
 import { RiskScore } from "@/components/RiskScore";
 import { ScenarioPanel } from "@/components/ScenarioPanel";
 import { BreachCascade } from "@/components/BreachCascade";
-import { MintAction } from "@/components/MintAction";
+import { CoreVaultMint } from "@/components/MintAction";
 import { FdcAttest } from "@/components/FdcAttest";
+import { RedemptionAgent } from "@/components/RedemptionAgent";
 import { ATTESTATION_ADDRESS } from "@/lib/attestation/abi";
 import { COSTON2_EXPLORER } from "@/lib/flare/coston2";
 import { formatShock } from "@/lib/scoring/stress";
@@ -62,7 +63,7 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <span className="flare-text text-base font-bold tracking-tight">LedgerGuard</span>
             <span className="hidden text-[11px] text-[var(--color-muted)] sm:inline">
-              risk-ranked FXRP agent selection
+              FXRP collateral risk & redemption safety
             </span>
           </div>
           <nav className="flex flex-wrap items-center gap-3 text-[11px] sm:gap-4">
@@ -90,23 +91,23 @@ export default function Home() {
             Flare · Coston2 · FAssets
           </div>
           <h1 className="mt-3 max-w-2xl text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
-            See how far XRP can crash before each agent liquidates you — then prove it on-chain.
+            Every FXRP is backed by agent collateral — see which agents can still pay you out, and watch the system survive a crash.
           </h1>
           <p className="mt-3 max-w-xl text-sm text-[var(--color-muted)]">
-            To mint FXRP on Flare you lock collateral with an agent. If XRP drops,
-            the weakest-collateralized agents liquidate your position first.
-            LedgerGuard ranks every live Coston2 agent by exactly how deep a crash
-            each one survives, lets you drag a price shock to watch it happen, and
-            anchors the ranking on Coston2 so a judge can replay and confirm the
-            numbers. (On Coston2 today all agents charge the same 0.25% fee — so
-            fee can&apos;t pick a winner. That&apos;s why we rank by risk.)
+            Minting FXRP is now a direct payment to the Flare <span className="text-[var(--color-text)]">Core Vault</span> — you
+            don&apos;t pick an agent to mint. Agents instead post the collateral that
+            backs the FXRP already in circulation, and they are the ones you deal with
+            to <span className="text-[var(--color-text)]">redeem</span> back to XRP. LedgerGuard ranks every live Coston2
+            agent by exactly how deep a crash its collateral survives, so you can see
+            which agents remain safe to redeem with and how concentrated the backing
+            behind your FXRP is — then anchors that view on Coston2 so anyone can replay it.
           </p>
 
           <div className="mt-5 flex flex-wrap gap-2 text-[11px]">
             {[
               ["Read", "every live Coston2 agent + its collateral"],
-              ["Rank", "by projected headroom, not fee"],
-              ["Anchor", "the ranking on-chain so it's verifiable"],
+              ["Rank", "by crash survival, not fee"],
+              ["Anchor", "the view on-chain so it's verifiable"],
             ].map(([step, desc], i) => (
               <div
                 key={step}
@@ -130,7 +131,7 @@ export default function Home() {
                 <input
                   id="mint-amount"
                   inputMode="numeric"
-                  aria-label="Mint amount in FXRP"
+                  aria-label="FXRP amount"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value.replace(/[^0-9]/g, ""))}
                   className="num w-40 bg-transparent px-4 py-3 text-lg outline-none"
@@ -164,14 +165,14 @@ export default function Home() {
             </div>
 
             <div className="mt-4 flex flex-col gap-2">
-              <div className="flex items-center gap-3 text-xs text-[var(--color-muted)]">
-                <span className="w-28 shrink-0">Mint size</span>
+            <div className="flex items-center gap-3 text-xs text-[var(--color-muted)]">
+              <span className="w-28 shrink-0">FXRP amount</span>
                 <input
                   type="range"
                   min={10}
                   max={10000}
                   step={10}
-                  aria-label="Mint size in FXRP"
+                  aria-label="FXRP amount"
                   value={Math.min(10000, Math.max(10, Number(amount) || 0))}
                   onChange={(e) => {
                     setAmount(e.target.value);
@@ -235,44 +236,44 @@ export default function Home() {
                   <span className="num text-[var(--color-faint)]">block {view.blockNumber}</span>
                 </div>
 
-                <div className="mt-5 grid gap-4 md:grid-cols-3">
+                <div className="grid gap-4 md:grid-cols-3">
                   <div className="md:col-span-2 border border-[var(--color-accent)]/40 bg-[var(--color-surface)] p-6 flare-glow">
-                    <div className="text-[11px] uppercase tracking-wider text-[var(--color-faint)]">
-                      Recommended agent
-                    </div>
-                    <div className="num mt-2 text-2xl text-[var(--color-accent)]">
-                      {recommended.agentVault}
-                    </div>
-                    <div className="mt-1 text-[11px] text-[var(--color-faint)]">
-                      Live recommendation at block {view.blockNumber}. A stored receipt
-                      may name a different agent — it is pinned to its own block.
-                    </div>
-                    <div className="mt-4 grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
-                      <Stat label="Post-mint CR" value={ratio(recommended.bindingLeg.projectedRatioBIPS)} />
-                      <Stat
-                        label="Headroom"
-                        value={headroom(recommended.bindingLeg.projectedHeadroomBIPS)}
+                      <div className="text-[11px] uppercase tracking-wider text-[var(--color-faint)]">
+                        Safest redemption agent
+                      </div>
+                      <div className="num mt-2 text-2xl text-[var(--color-accent)]">
+                        {recommended.agentVault}
+                      </div>
+                      <div className="mt-1 text-[11px] text-[var(--color-faint)]">
+                        Most crash-resilient agent at block {view.blockNumber}. A stored
+                        receipt may name a different agent — it is pinned to its own block.
+                      </div>
+                      <div className="mt-4 grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
+                        <Stat label="Post-redemption CR" value={ratio(recommended.bindingLeg.projectedRatioBIPS)} />
+                        <Stat
+                          label="Headroom"
+                          value={headroom(recommended.bindingLeg.projectedHeadroomBIPS)}
+                        />
+                        <Stat label="Liquidation at" value={ratio(recommended.bindingLeg.liquidationThresholdBIPS)} />
+                        <Stat label="Fee" value={fee(recommended.feeBIPS)} />
+                        <Stat
+                          label="Survives XRP drop"
+                          value={moveLabel(recommended.liquidationMoveBips)}
+                          accent
+                        />
+                        <Stat label="Capacity" value={fxrp(recommended.availableCapacityUBA, view.assetUnitUBA)} />
+                      </div>
+                      <RedemptionAgent
+                        recommendedVault={recommended.agentVault}
+                        amountFxrp={Number(amount) || 0}
+                        assetManager={view.assetManager}
                       />
-                      <Stat label="Liquidation at" value={ratio(recommended.bindingLeg.liquidationThresholdBIPS)} />
-                      <Stat label="Fee" value={fee(recommended.feeBIPS)} />
-                      <Stat
-                        label="Survives XRP drop"
-                        value={moveLabel(recommended.liquidationMoveBips)}
-                        accent
-                      />
-                      <Stat label="Capacity" value={fxrp(recommended.availableCapacityUBA, view.assetUnitUBA)} />
+                      {view.comparison?.headline && (
+                        <p className="mt-4 border-l-2 border-[var(--color-accent)]/60 bg-[var(--color-surface)]/60 pl-3 text-xs leading-relaxed text-[var(--color-text)]">
+                          {view.comparison.headline}
+                        </p>
+                      )}
                     </div>
-                    <MintAction
-                      recommendedVault={recommended.agentVault}
-                      amountFxrp={Number(amount) || 0}
-                      assetManager={view.assetManager}
-                    />
-                    {view.comparison?.headline && (
-                      <p className="mt-4 border-l-2 border-[var(--color-accent)]/60 bg-[var(--color-surface)]/60 pl-3 text-xs leading-relaxed text-[var(--color-text)]">
-                        {view.comparison.headline}
-                      </p>
-                    )}
-                  </div>
                   <div className="border border-[var(--color-line)] bg-[var(--color-surface)] p-6">
                     <div className="text-[11px] uppercase tracking-wider text-[var(--color-faint)]">
                       Snapshot commitment
@@ -286,6 +287,11 @@ export default function Home() {
                   </div>
                 </div>
               </section>
+            </Reveal>
+
+            {/* HOW MINTING WORKS NOW (the model the reviewer flagged) */}
+            <Reveal>
+              <CoreVaultMint />
             </Reveal>
 
             {/* SCENARIO (leads — concrete proof point right after the recommendation) */}
@@ -305,7 +311,7 @@ export default function Home() {
             <Reveal>
               <section id="why" className="border-t border-[var(--color-line)] py-12">
                 <h2 className="mb-4 text-sm font-medium text-[var(--color-text)]">
-                  Why this agent — and how it compares
+                  Why this agent — and how the backing compares
                 </h2>
                 <AgentComparison view={view} />
               </section>
@@ -333,10 +339,10 @@ export default function Home() {
                   Anchor it on Coston2
                 </h2>
                 <p className="mb-4 max-w-2xl text-xs leading-relaxed text-[var(--color-muted)]">
-                  The anchor is a timestamped receipt: a hash of the full ranking at a
+                  The anchor is a timestamped receipt: a hash of the full agent view at a
                   pinned block, written to Coston2 so anyone can replay and confirm it
                   was computed at that block. That proves provenance and reproducibility
-                  — it does not by itself guarantee the ranking is correct, because
+                  — it does not by itself guarantee the view is correct, because
                   anyone can anchor a hash. Correctness is what the open, reproducible
                   engine plus the on-chain snapshot block let a third party verify for
                   themselves.
@@ -389,15 +395,16 @@ export default function Home() {
                   <div className="border border-[var(--color-line)] bg-[var(--color-surface)] p-4 text-xs leading-relaxed text-[var(--color-muted)]">
                     <span className="font-medium text-[var(--color-good)]">It is </span>
                     a read-only risk advisor: it reads live Coston2 agents, ranks them
-                    by collateral headroom, and anchors a replayable receipt on-chain.
-                    Every number traces back to chain state you can re-read yourself.
+                    by collateral headroom and crash survival, and anchors a replayable
+                    view of the system on-chain. Every number traces back to chain
+                    state you can re-read yourself.
                   </div>
                   <div className="border border-[var(--color-line)] bg-[var(--color-surface)] p-4 text-xs leading-relaxed text-[var(--color-muted)]">
                     <span className="font-medium text-[var(--color-warn)]">It isn&apos;t </span>
-                    a minting tool — it hands you the exact agent and parameters but
-                    does not execute the transaction, and on Coston2 today all four
-                    agents charge the same 0.25% fee, so it ranks on risk, not price.
-                    Scope, not a gap.
+                    a minter or a redeemer — it never signs a transaction and the FXRP
+                    mint itself is a direct payment to the Core Vault, not an agent
+                    choice. On Coston2 today all four agents charge the same 0.25% fee,
+                    so the ranking is by risk, not price. Scope, not a gap.
                   </div>
                 </div>
               </section>

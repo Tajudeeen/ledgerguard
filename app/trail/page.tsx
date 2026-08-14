@@ -106,7 +106,7 @@ export default function TrailPage() {
                   <th className="px-3 py-2.5 font-medium">#</th>
                   <th className="px-3 py-2.5 font-medium">Block</th>
                   <th className="px-3 py-2.5 font-medium">When</th>
-                  <th className="px-3 py-2.5 font-medium">Recommended agent</th>
+                  <th className="px-3 py-2.5 font-medium">Safest redemption agent</th>
                   <th className="px-3 py-2.5 font-medium">Snapshot hash</th>
                   <th className="px-3 py-2.5 font-medium">Submitter</th>
                 </tr>

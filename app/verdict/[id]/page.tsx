@@ -202,7 +202,7 @@ export default async function VerdictPage({
         <section className="mt-8 border border-[var(--color-line)] bg-[var(--color-surface)] p-5 text-sm text-[var(--color-muted)]">
           The per-agent ranking for this attestation is not in the local cache,
           so the detailed table is not shown here. You can still confirm the
-          anchored hash, block, mint amount and recommended agent above against
+          anchored hash, block, FXRP amount and safest redemption agent above against
           the contract, and the{" "}
           <a href="/trail" className="text-[var(--color-accent)] hover:underline">
             agent trail
@@ -237,7 +237,7 @@ export default async function VerdictPage({
         </ol>
         <p className="mt-3 text-[11px] leading-relaxed text-[var(--color-faint)]">
           An attestation records what LedgerGuard computed and when. It is not a
-          claim that the recommended agent is safe, and it does not bind the
+          claim that the safest redemption agent is safe, and it does not bind the
           agent to anything.
         </p>
       </section>

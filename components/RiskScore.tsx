@@ -62,6 +62,8 @@ export function RiskScore({ agent }: { agent: AgentView }) {
       <p className="mt-2 text-[11px] leading-relaxed text-[var(--color-faint)]">
         Components saturate at 1.0. Fee is weighted below every safety term by
         design, so a cheaper agent can never outrank a materially safer one.
+        The ranking reflects collateral backing and crash survival — not the
+        mint, which is a direct Core Vault payment.
       </p>
     </div>
   );

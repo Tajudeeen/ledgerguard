@@ -15,6 +15,9 @@ import {
  * documented formula from, Coston2 state at the snapshot block. When a what-if
  * price shock is active, an extra column shows each agent's post-shock
  * projected headroom so the user can see which agents survive an adverse move.
+ * Note: under the current FAssets model there is no "mint agent" — this board
+ * shows the collateral standing behind the FXRP in circulation and which agents
+ * remain safe to redeem with.
  */
 export function AgentTable({
   view,

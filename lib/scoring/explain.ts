@@ -44,9 +44,13 @@ export type Comparison = {
 };
 
 /**
- * Builds the "why not the cheapest?" explanation entirely from the ranked
- * numbers. Nothing here is hardcoded or templated with example values; if the
- * chain state changes, the sentence changes with it.
+ * Builds the "why this agent?" explanation entirely from the ranked
+ * numbers. Under the current FAssets model there is no agent chosen at mint
+ * time — the amount entered gauges how much FXRP a redemption of this size would
+ * require, so the view shows which agents hold enough free collateral to cover
+ * it and which are safest to redeem with. Nothing here is hardcoded or
+ * templated with example values; if the chain state changes, the sentence
+ * changes with it.
  */
 export function explainRecommendation(ranking: Ranking): Comparison {
   const { recommended, cheapest, assetUnitUBA } = ranking;
@@ -54,9 +58,9 @@ export function explainRecommendation(ranking: Ranking): Comparison {
   if (!recommended || !cheapest) {
     return {
       kind: "no_eligible_agents",
-      headline: "No agent can currently take this mint",
+      headline: "No agent can currently cover this redemption",
       detail:
-        "No available agent has enough free capacity for this amount at the " +
+        "No available agent has enough free capacity for a redemption of this size at the " +
         "snapshot block. Try a smaller amount, or check back once agents " +
         "top up collateral.",
       feeDeltaBIPS: 0n,
@@ -111,12 +115,10 @@ export function explainRecommendation(ranking: Ranking): Comparison {
           `Every available agent charges the same ${formatFee(recommended.feeBIPS)} fee — ` +
           `so fee tells you nothing, and collateral position is the whole decision`,
         detail:
-          `At an identical price you could route this mint through ${short(weakest)}, ` +
-          `whose ${weakest.bindingLeg.label} ratio would fall from ` +
-          `${formatRatio(weakest.bindingLeg.currentRatioBIPS)} to ` +
-          `${formatRatio(weakest.bindingLeg.projectedRatioBIPS)} against a ` +
-          `${formatRatio(weakest.bindingLeg.liquidationThresholdBIPS)} liquidation threshold, ` +
-          `leaving ${formatHeadroom(weakHeadroom)} of headroom. ` +
+          `At an identical price you could redeem through ${short(weakest)}, ` +
+          `whose ${weakest.bindingLeg.label} ratio would sit at ` +
+          `${formatRatio(weakest.bindingLeg.currentRatioBIPS)} with ` +
+          `${formatHeadroom(weakHeadroom)} of headroom. ` +
           `${short(recommended)} instead leaves ${formatHeadroom(recHeadroom)}` +
           (delta === undefined ? "" : ` — ${formatHeadroom(delta)} more cushion`) +
           `, for exactly the same fee.`,
@@ -132,7 +134,7 @@ export function explainRecommendation(ranking: Ranking): Comparison {
       detail:
         `${short(recommended)} has both the lowest fee (${formatFee(recommended.feeBIPS)}) ` +
         `and the best projected collateral headroom (${formatHeadroom(recHeadroom)} on its ` +
-        `${recommended.bindingLeg.label} leg) after your mint. There is no trade-off to make here.`,
+        `${recommended.bindingLeg.label} leg). There is no trade-off to make here.`,
       feeDeltaBIPS: 0n,
       headroomDeltaBIPS: 0n,
       extraFeeUBA: 0n,
@@ -148,7 +150,7 @@ export function explainRecommendation(ranking: Ranking): Comparison {
 
   const headroomPhrase =
     headroomDeltaBIPS === undefined
-      ? "the cheapest agent's post-mint position cannot be measured from current exposure"
+      ? "the cheapest agent's position cannot be measured from current exposure"
       : `it leaves ${formatHeadroom(recHeadroom)} of collateral headroom against liquidation ` +
         `instead of ${formatHeadroom(cheapHeadroom)} — a difference of ${formatHeadroom(headroomDeltaBIPS)}`;
 
@@ -156,17 +158,18 @@ export function explainRecommendation(ranking: Ranking): Comparison {
     kind: "trade_off",
     headline: `${short(recommended)} ${feePhrase}, but ${headroomPhrase}`,
     detail:
-      `Your ${formatUBA(ranking.mintAmountUBA, assetUnitUBA)} FXRP mint pushes ` +
+      `A redemption of ${formatUBA(ranking.mintAmountUBA, assetUnitUBA)} FXRP would push ` +
       `${short(cheapest)}'s ${cheapest.bindingLeg.label} collateral ratio from ` +
       `${formatRatio(cheapest.bindingLeg.currentRatioBIPS)} to ` +
       `${formatRatio(cheapest.bindingLeg.projectedRatioBIPS)}, against a liquidation ` +
       `threshold of ${formatRatio(cheapest.bindingLeg.liquidationThresholdBIPS)}. ` +
-      `The same mint moves ${short(recommended)}'s ${recommended.bindingLeg.label} ratio from ` +
+      `The same redemption moves ${short(recommended)}'s ${recommended.bindingLeg.label} ratio from ` +
       `${formatRatio(recommended.bindingLeg.currentRatioBIPS)} to ` +
       `${formatRatio(recommended.bindingLeg.projectedRatioBIPS)} against a threshold of ` +
       `${formatRatio(recommended.bindingLeg.liquidationThresholdBIPS)}. ` +
-      `A larger buffer means the agent can absorb a bigger adverse price move ` +
-      `before the protocol is entitled to liquidate the collateral backing your FXRP.`,
+      `A larger buffer means that agent can absorb a bigger adverse price move ` +
+      `before the protocol is entitled to liquidate the collateral — the collateral ` +
+      `that backs the FXRP you would be redeeming against.`,
     feeDeltaBIPS,
     headroomDeltaBIPS,
     extraFeeUBA,

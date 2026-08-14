@@ -158,8 +158,8 @@ export function AnchorButton({
         On-chain attestation
       </div>
       <p className="mt-2 max-w-2xl text-xs leading-relaxed text-[var(--color-muted)]">
-        Anchoring writes only the snapshot hash, block, agent count, mint amount
-        and recommended agent to Coston2. Anyone can later re-read the
+        Anchoring writes only the snapshot hash, block, agent count, FXRP amount
+        and safest redemption agent to Coston2. Anyone can later re-read the
         AssetManager at block{" "}
         <span className="num text-[var(--color-text)]">{view.blockNumber}</span>, re-run
         this scoring engine, and check that it reproduces the same hash.

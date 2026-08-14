@@ -6,7 +6,7 @@ hold all of it in their head.
 ```
 ledgerguard/
 ├── app/
-│   ├── page.tsx                    mint input → ranking → anchor
+│   ├── page.tsx                    FXRP amount → agent view → anchor
 │   ├── verdict/[id]/page.tsx       receipt, re-verified against chain
 │   ├── trail/page.tsx              verifiable agent history (overview)
 │   ├── agent/[vault]/page.tsx      one agent's trail + stability score
@@ -15,9 +15,10 @@ ledgerguard/
 │       ├── receipts/route.ts       receipt cache write
 │       └── trail/route.ts          contract → per-agent trails
 ├── components/
-│   ├── AgentComparison.tsx         recommended vs cheapest — the centrepiece
+│   ├── AgentComparison.tsx         safest redemption agent vs weakest — the centrepiece
 │   ├── AgentTable.tsx              full leaderboard
 │   ├── RiskScore.tsx               score component breakdown
+│   ├── RedemptionAgent.tsx         safest agent to redeem with + Core Vault explainer
 │   ├── TrailList.tsx               agent stability overview table
 │   ├── ConcentrationPanel.tsx      HHI, shown apart from agent risk
 │   └── AnchorButton.tsx            wallet → attestation tx

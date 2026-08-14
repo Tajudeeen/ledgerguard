@@ -13,8 +13,11 @@ import type { OracleView, RankingView } from "@/lib/utils/view";
  * For each agent we show how far XRP can fall before it breaches its binding
  * liquidation threshold (derived from on-chain ratios, exact). When the live
  * FTSO XRP/USD price is available we also express that as an absolute dollar
- * target. This is what makes the recommendation defensible under volatility:
- * "Agent X survives a −37% crash; the weakest agent dies at −11%."
+ * target. This is what makes the backing defensible under volatility:
+ * "Agent X survives a −37% crash; the weakest agent dies at −11%." An agent
+ * that cannot survive a crash is one you should not redeem with and one whose
+ * collateral is at risk of being liquidated — which is what actually backs your
+ * FXRP.
  */
 export function ScenarioPanel({
   view,
@@ -47,7 +50,9 @@ export function ScenarioPanel({
       <p className="mt-2 text-[11px] leading-relaxed text-[var(--color-faint)]">
         Each bar is the XRP drawdown an agent can absorb before its collateral
         ratio hits liquidation. Longer is safer. Computed from on-chain ratios —
-        no oracle required.
+        no oracle required. A short bar means thin collateral: if you redeem with
+        that agent, or rely on the FXRP it backs, a modest crash puts its
+        collateral at risk.
       </p>
 
       <div className="mt-4 space-y-2.5">

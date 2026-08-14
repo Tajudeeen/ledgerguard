@@ -4,6 +4,13 @@ LedgerGuard is a **decision aid, not a guarantee.** This document is deliberatel
 specific about what the product cannot do, because a risk tool that overstates
 its own certainty is worse than no tool.
 
+**Model context.** Minting FXRP on the current FAssets model is a direct XRPL
+payment to the Core Vault, finalised on Flare by an executor — there is no agent
+to choose at mint time. The agent risk that remains is on the **redemption** side
+(agents must hold enough free collateral to pay you out) and in the **collateral
+backing** behind the FXRP already in circulation. LedgerGuard ranks that
+collateral standing; it never signs a transaction and never reserves collateral.
+
 ## The ranking is a snapshot, and snapshots go stale
 
 Every figure is read at one pinned block. The instant that block is behind you:
@@ -18,15 +25,16 @@ Every figure is read at one pinned block. The instant that block is behind you:
 A ranking produced thirty seconds ago may already recommend a different agent.
 LedgerGuard shows the snapshot block on every screen for exactly this reason.
 
-## The projection assumes a constant asset price
+## The projection assumes the asset price is held constant at "take-on" time
 
 `CR_after = CR_before × backed / (backed + mint)` is an exact identity **holding
 the asset price constant**. That assumption is what lets LedgerGuard avoid a
 price oracle entirely — the unknown collateral value and price cancel.
 
-It also means the projection isolates the effect of *your mint alone*. It is not
+It also means the projection isolates the effect of *your redemption* — the
+exposure a redemption of the entered size would place on an agent. It is not
 a forecast. If XRP moves against the collateral between the snapshot and your
-transaction, the realised ratio will differ from the projected one, and the
+redemption, the realised ratio will differ from the projected one, and the
 error can exceed the headroom differences between agents.
 
 ## Ratios are read, not recomputed
@@ -53,7 +61,7 @@ executes a transaction and never reserves collateral.
 ## Capacity is derived from free lots
 
 `availableCapacityUBA = freeCollateralLots × lotSizeAMG × granularity`. Because
-minting is lot-quantised (10 FXRP per lot on Coston2), a request that is not a
+redemptions consume an agent's free lots, a request that is not a
 whole number of lots will be handled differently by the protocol than the naive
 UBA comparison suggests.
 
@@ -159,6 +167,8 @@ block safe.
 
 ## Not covered at all
 
-No mint execution. No mainnet or Songbird. No FAssets other than FXRP. No
-redemption-side risk. No detection of agent misbehaviour or collusion. No MEV or
-transaction-ordering considerations.
+No mint execution (the FXRP mint is a direct Core Vault payment, not an agent
+choice). No mainnet or Songbird. No FAssets other than FXRP. No live redemption
+execution — LedgerGuard identifies which agents can safely cover a redemption
+and how crash-resilient they are, but does not perform the burn. No detection of
+agent misbehaviour or collusion. No MEV or transaction-ordering considerations.

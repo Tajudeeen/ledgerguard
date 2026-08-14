@@ -3,7 +3,8 @@ import { fxrp } from "@/lib/utils/format";
 
 /**
  * System-level concentration. Deliberately presented apart from agent risk:
- * HHI describes the FXRP system, not whether any one agent is safe for you.
+ * HHI describes the FXRP backing system, not whether any one agent is safe to
+ * redeem with.
  */
 export function ConcentrationPanel({ view }: { view: RankingView }) {
   const { hhi, minPossibleHhi, totalBackedUBA, agentCount } = view.concentration;
@@ -58,11 +59,11 @@ export function ConcentrationPanel({ view }: { view: RankingView }) {
         Total FXRP backed across available agents:{" "}
         <span className="num">{fxrp(totalBackedUBA, view.assetUnitUBA)}</span>. HHI is
         the sum of squared exposure shares. It measures how concentrated the
-        system is — it is reported as context and is not a term in any agent&apos;s
+        backing is — it is reported as context and is not a term in any agent&apos;s
         safety score. With only {agentCount} live agents the theoretical floor is{" "}
         <span className="num">{minPossibleHhi.toFixed(4)}</span>, so on Coston2 a
-        &ldquo;concentrated&rdquo; reading mostly reflects how few agents exist, not
-        a quality verdict on any one of them.
+        &ldquo;concentrated&rdquo; reading mostly reflects how few agents back the
+        system, not a quality verdict on any one of them.
       </p>
     </div>
   );

@@ -1,46 +1,59 @@
 # LedgerGuard
 
-**Risk-aware agent selection for FXRP minting on Flare.**
+**Risk-aware collateral intelligence for FXRP on Flare.**
 
-FAssets publishes everything about its minting agents on-chain. It does not tell
-you which one to use. LedgerGuard reads the live agent set on Coston2, projects
-what *your* mint would do to each agent's collateral position, ranks them by
-transparent metrics, and anchors the resulting ranking on-chain so the
-recommendation can be audited after the fact.
+FAssets publishes everything about its agents on-chain — but the agent role
+changed. Minting FXRP is now a **direct payment to the Core Vault**, not a
+choice of agent; agents instead post the collateral that backs the FXRP already
+in circulation and are the counterparties you deal with to **redeem** back to
+XRP. LedgerGuard reads the live agent set on Coston2, ranks each agent by how
+deep a crash its collateral survives and whether it holds enough free collateral
+to cover a redemption of your size, and anchors that view on-chain so it can be
+audited after the fact.
 
 ```
-enter 500 FXRP  →  4 agents analyzed  →  recommended vs cheapest
+enter 500 FXRP  →  4 agents analyzed  →  safest redemption agent vs weakest
                 →  full leaderboard   →  anchor on Coston2  →  receipt
 ```
+
+> Model note: this reframing follows the current FAssets minting model
+> (dev.flare.network/fassets/minting), where `executeDirectMinting` finalises a
+> mint paid directly to the Core Vault. The old "pick an agent to mint" flow no
+> longer applies, so LedgerGuard ranks agents by the collateral they post — the
+> risk that remains is on the redemption side and in the backing behind your
+> FXRP.
 
 ---
 
 ## Problem
 
-To mint FXRP you must pick an agent. `getAvailableAgentsDetailedList()` returns
-fee, minting collateral ratios and free lots; `getAgentInfo()` returns roughly
-forty more fields per agent. None of it answers the only question a minter
-actually has:
+FXRP is minted by sending XRP straight to the Flare Core Vault — you do not
+select an agent at mint time. The agent question moves to **redemption**: when
+you burn FXRP to get XRP back, the agent you route through must actually hold
+enough free collateral to pay you. `getAvailableAgentsDetailedList()` returns
+free lots, collateral ratios and fees; `getAgentInfo()` returns roughly forty
+more fields per agent. None of it answers the questions a holder actually has:
 
-> If I mint this amount through this agent, how exposed am I?
+> Which agents can still cover a redemption of my size, and which one survives
+> the deepest crash before its collateral is liquidated?
 
-The naive answer — sort by fee — is actively wrong. Fee is a few basis points.
-The difference between an agent sitting at a comfortable collateral ratio and
-one hovering just above its liquidation threshold is the difference between a
-position that survives an adverse price move and one that does not. Those two
+The naive answer — sort by fee — is actively wrong here. Fee is a few basis
+points. The difference between an agent sitting at a comfortable collateral
+ratio and one hovering just above its liquidation threshold is the difference
+between a redemption that pays out and one that stalls, or between FXRP whose
+backing is solid and FXRP whose backing is one bad day from trouble. Those two
 agents can be **five basis points apart on price**.
 
 ## Solution
 
-LedgerGuard turns the raw agent data into a ranked, explained decision:
+LedgerGuard turns the raw agent data into a ranked, explained view:
 
 1. Reads every available agent from the FXRP AssetManager at a single pinned block.
-2. Projects each agent's collateral ratio *after* the requested mint.
+2. Projects each agent's collateral ratio *after* taking on the exposure implied by the FXRP amount entered (a redemption of that size).
 3. Measures headroom against the agent's real liquidation threshold.
-4. Ranks agents on published, weighted, individually visible components.
-5. Shows the recommended agent against the cheapest one, and explains the gap
-   in a sentence generated from the actual numbers.
-6. Commits the whole ranking to a deterministic hash and anchors it on Coston2.
+4. Ranks agents on published, weighted, individually visible components — by collateral safety, not by fee.
+5. Shows the safest redemption agent against the weakest one, and explains the gap in a sentence generated from the actual numbers.
+6. Commits the whole view to a deterministic hash and anchors it on Coston2.
 
 ## Why Flare
 
@@ -98,8 +111,8 @@ Nothing here is a black box. Every number below is visible in the UI.
 
 ### Projected collateral ratio
 
-A mint does not change an agent's collateral — it increases the asset value that
-collateral must back. So for constant collateral and constant price:
+A redemption does not change an agent's collateral — it increases the asset
+value that collateral must back. So for constant collateral and constant price:
 
 ```
 CR_after = CR_before × backedBefore / (backedBefore + mintAmount)
@@ -335,14 +348,17 @@ running, replayable history of agent behaviour built from repeated attestations
 of the standard mint (`/trail`, `/agent/[vault]`, `script/trail-worker.ts`).
 
 Not built and not claimed: mint execution, mainnet or Songbird support,
-non-FXRP FAssets, and multi-asset portfolio management.
+non-FXRP FAssets, and multi-asset portfolio management. LedgerGuard reads agent
+collateral health; it does not itself mint or redeem.
 
 ## Known limitations
 
 See [KNOWN_LIMITATIONS.md](KNOWN_LIMITATIONS.md). The short version: LedgerGuard
 is a **decision aid, not a guarantee**. It ranks a snapshot that is stale the
 moment after it is taken, it does not execute or bind anything, and it does not
-replace AssetManager enforcement.
+replace AssetManager enforcement. It also never picks your mint agent — the FXRP
+mint is a direct Core Vault payment — it ranks the agents whose collateral
+backs the system and who are safe to redeem with.
 
 One honest observation about the current testnet: **all four available Coston2
 agents charge the same 0.25% fee.** The cheapest-vs-safest trade-off the product
