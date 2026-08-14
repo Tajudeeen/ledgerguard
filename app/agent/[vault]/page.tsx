@@ -3,7 +3,6 @@ import { createPublicClient, http } from "viem";
 import { flareTestnet } from "viem/chains";
 
 import { ATTESTATION_ABI, ATTESTATION_ADDRESS } from "@/lib/attestation/abi";
-import { COSTON2_EXPLORER } from "@/lib/flare/coston2";
 import {
   buildTrails,
   readAttestationRecords,
@@ -141,7 +140,7 @@ export default async function AgentPage({
                   </td>
                   <td className="num px-3 py-2.5 text-[11px]">
                     <a
-                      href={`${COSTON2_EXPLORER}/tx/${p.snapshotHash}`}
+                      href={`/verdict/${p.attestationId}`}
                       className="text-[var(--color-faint)] hover:text-[var(--color-accent)]"
                       title={p.snapshotHash}
                     >
